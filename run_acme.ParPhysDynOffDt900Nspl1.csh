@@ -29,7 +29,7 @@ set stop_num             = 1
 set restart_units        = $stop_units
 set restart_num          = $stop_num
 set num_resubmits        = 0
-set do_short_term_archiving = true
+set do_short_term_archiving = false
 set do_long_term_archiving  = false
 
 ### SIMULATION OPTIONS
@@ -296,6 +296,8 @@ if ( `lowercase $run_root_dir` == 'default' ) then
   else if (  $machine == 'cab' ) then
     set    user_name = `whoami`
     set run_root_dir = /p/lscratchd/${user_name}/ACME_simulations/${case_name}
+  else if (  $machine == 'cetus' ) then
+    set run_root_dir = /projects/${project}/${USER}/ACME_simulations/${case_name}
   else if ( $machine == 'blues' ) then
     set run_root_dir = /lcrc/project/$project/$USER/ACME_simulations/${case_name}
   else
@@ -309,6 +311,8 @@ if ( `lowercase $short_term_archiving_root_dir` == 'default' ) then
     set short_term_archiving_root_dir = $SCRATCH/archive/${case_name}
   else if (  $machine == 'titan' ) then
     set short_term_archiving_root_dir = ${PROJWORK}/${project}/${USER}/archive/${case_name}
+  else if (  $machine == 'cetus' ) then
+    set short_term_archiving_root_dir = /projects/${project}/${USER}/archive/${case_name}
   else if (  $machine == 'cab' ) then
     set    user_name = `whoami`
     set short_term_archiving_root_dir = /p/lscratchd/${user_name}/archive/${case_name}
@@ -316,7 +320,7 @@ if ( `lowercase $short_term_archiving_root_dir` == 'default' ) then
     set short_term_archiving_root_dir = /lcrc/project/$project/$USER/archive/${case_name}
 
   else
-    echo 'run_acme ERROR: Default short_term_root_dir for  '${machine}' is unspecified. Please add specification to this script'
+    echo 'run_acme ERROR: Default short_term_archiving_root_dir for  '${machine}' is unspecified. Please add specification to this script'
     exit 32
   endif
 endif
@@ -848,8 +852,8 @@ if ( `lowercase $debug_queue` == 'true' ) then
   else if ( $machine == 'titan' ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        case_scripts.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   case_scripts.run
-  else if ( $machine == 'blues' ) then
-    echo 'run_acme WARNING: debug queue requested, but does not exist on blues. ignoring.'
+  else if ( $machine == 'cetus' || $machine == 'blues' ) then
+    echo 'run_acme WARNING: $debug_queue='$debug_queue' but $machine='$machine' has no debug queue. Ignoring.'
   else
     echo 'run_acme ERROR: This script does not know name of debug queue or walltime limits on $machine='$machine
     exit  310      
@@ -864,6 +868,8 @@ else #if NOT to be run in debug_queue
   else if ( $machine == 'titan' ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                        case_scripts.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   case_scripts.run
+  else if ( $machine == 'cetus' ) then
+    echo "cetus doesn't use directives, so can't change walltime."
   else
     echo 'run_acme WARNING: This script does not have defaults for batch queue and run time on $machine='$machine
     echo '                  Assuming default ACME values.'
@@ -881,7 +887,7 @@ endif
 
 mkdir -p run.output      ### Make directory that stdout and stderr will go into.
  
-if ( $machine == 'hopper' || $machine == 'edison' || $machine == 'titan' ) then
+if ( $machine == 'hopper' || $machine == 'edison' || $machine == 'titan' || $machine == 'cetus' ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${case_name}"                               case_scripts.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 case_scripts.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' case_scripts.run
