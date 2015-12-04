@@ -17,11 +17,11 @@ endif
 ###===================================================================
 
 ### BASIC INFO ABOUT RUN
-set run_name   = v0.3ParPhysDynOffDt900Nspl1      
+set run_name   = ParPhysDynOffDt900Nspl1      
 set compset    = FC5           # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
 set resolution = ne30_g16         # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
-set machine    = hopper             # !!!!!! CHANGE BEFORE ARCHIVING to edison   !!!!!!!
-setenv project   acme   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to acme   !!!!!!!
+set machine    = blues             # !!!!!! CHANGE BEFORE ARCHIVING to edison   !!!!!!!
+setenv project   ACME   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to acme   !!!!!!!
 
 ### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING
 set stop_units           = ndays
@@ -38,8 +38,8 @@ set records_per_atm_output_file  = 40
 
 ### SOURCE CODE OPTIONS
 set fetch_code = false    # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
-set acme_tag   = v0.3  # !!!!! CHANGE BEFORE ARCHIVING to ??????   !!!!!!!
-set tag_name   = v0.3   # !!!!!  CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
+set acme_tag   = PeterCaldwell/atm/dp_cpl_qtend  # !!!!! CHANGE BEFORE ARCHIVING to ??????   !!!!!!!
+set tag_name   = dp_cpl_qtend # !!!!!  CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
 
 ### BUILD OPTIONS
 set debug_compile          = false     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
@@ -47,7 +47,7 @@ set old_executable         = false     # !!!!! CHANGE BEFORE ARCHIVING to false 
 
 ### SUBMIT OPTIONS
 set submit_run             = true      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
-set debug_queue            = true      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set debug_queue            = false      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 
 ### AUTOMATIC DELETION OPTIONS
 set seconds_before_delete_source_dir = 10   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
@@ -199,10 +199,11 @@ alias uppercase "echo \!:1 | tr '[a-z]' '[A-Z]'"  #make function which uppercase
 
 ### Check that $machine is consistent with the machine being run on, ie $HOST.  
 ### The hostname often contains both machine and node names, so the following just checks that $machine appears somewhere in the name. 
+### Note: blues has hostnames of the form 'bhost#' so don't do this check for that machine.
 
 set lower_case_host    = `echo "$HOST"    | tr '[A-Z]' '[a-z]'`
 set lower_case_machine = `echo "$machine" | tr '[A-Z]' '[a-z]'`
-if ! ( $lower_case_host =~ '*'$lower_case_machine'*' ) then
+if ! ( $lower_case_host =~ '*'$lower_case_machine'*' || `lowercase $machine` == blues ) then
   echo 'run_acme ERROR: You requested to run on $machine='$machine' but $HOST returns '$HOST
   echo '                    If you think $machine is set correctly, please edit this script to allow this behavior.'
   echo ''
@@ -295,6 +296,8 @@ if ( `lowercase $run_root_dir` == 'default' ) then
   else if (  $machine == 'cab' ) then
     set    user_name = `whoami`
     set run_root_dir = /p/lscratchd/${user_name}/ACME_simulations/${case_name}
+  else if ( $machine == 'blues' ) then
+    set run_root_dir = /lcrc/project/$project/$USER/ACME_simulations/${case_name}
   else
     echo 'run_acme ERROR: Default run_root_dir for  '${machine}' is unspecified. Please add specification to this script'
     exit 30
@@ -309,6 +312,9 @@ if ( `lowercase $short_term_archiving_root_dir` == 'default' ) then
   else if (  $machine == 'cab' ) then
     set    user_name = `whoami`
     set short_term_archiving_root_dir = /p/lscratchd/${user_name}/archive/${case_name}
+  else if ( $machine == 'blues' ) then
+    set short_term_archiving_root_dir = /lcrc/project/$project/$USER/archive/${case_name}
+
   else
     echo 'run_acme ERROR: Default short_term_root_dir for  '${machine}' is unspecified. Please add specification to this script'
     exit 32
@@ -742,19 +748,16 @@ endif
 # NOTE: The user_nl files need to be set before the build, because case_scripts.build also checks whether input files exist.
 # NOTE: $atm_output_freq and $records_per_atm_output_file are so commonly used, that they are set in the options at the top of this script.
 
+# NOTE: setting ATM_NCPL sets consistent dtime for both atmos and land. Additionally setting dtime in 
+# user_nl_clm causes model to crash. Setting dtime in user_nl_cam causes the atmos model to use an 
+# inconsistent dt between land and atmos and should NEVER be done. 
 ./xmlchange -file env_run.xml -id ATM_NCPL -val 96
 
 cat <<EOF >> user_nl_cam
  nhtfrq = $atm_output_freq
  mfilt  = $records_per_atm_output_file
- dtime = 10
  se_nsplit = 1
 EOF
-
-cat <<EOF >> user_nl_clm
- dtime = 900.
-EOF
-
 
 ### NOTES ON COMMON NAMELIST OPTIONS ###
 
@@ -845,6 +848,8 @@ if ( `lowercase $debug_queue` == 'true' ) then
   else if ( $machine == 'titan' ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        case_scripts.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   case_scripts.run
+  else if ( $machine == 'blues' ) then
+    echo 'run_acme WARNING: debug queue requested, but does not exist on blues. ignoring.'
   else
     echo 'run_acme ERROR: This script does not know name of debug queue or walltime limits on $machine='$machine
     exit  310      
@@ -876,17 +881,7 @@ endif
 
 mkdir -p run.output      ### Make directory that stdout and stderr will go into.
  
-if ( $machine == 'hopper' || $machine == 'edison' ) then
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${case_name}"                               case_scripts.run
-    sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 case_scripts.run
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' case_scripts.run
-    
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st_archive.${case_name}"                    $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt_archive.${case_name}"                    $longterm_archive_script
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
-
-else if ( $machine == 'titan' ) then
+if ( $machine == 'hopper' || $machine == 'edison' || $machine == 'titan' ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${case_name}"                               case_scripts.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 case_scripts.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' case_scripts.run
@@ -1071,7 +1066,7 @@ echo ''
 # 1.0.16   2015-11-30    Added $machine to the case_name (PJC)
 # 1.0.17   2015-11-30    Added date to filename when archiving this script (so previous version doesn't get overwritten) (PJC)
 # 1.0.18   2015-11-30    Will now automatically use 'git checkout --detach' so users cannot alter master by accident (PJC)
-# 1.0.19   2015-12-01    Specify short_term_archiving_root_dir (PMC)
+# 1.0.19   2015-12-01    Specify short_term_archiving_root_dir and run on new machine=blues (PMC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
              
