@@ -17,11 +17,12 @@ endif
 ###===================================================================
 
 ### BASIC INFO ABOUT RUN
-set run_name   = run_acme_example      
+set run_name   = run_acme_example   # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
+set job_name   = 1.0.25_test         # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
 set compset    = A_B1850           # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
 set resolution = ne30_m120         # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
-set machine    = titan             # !!!!!! CHANGE BEFORE ARCHIVING to edison   !!!!!!!
-setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to acme   !!!!!!!
+set machine    = titan             # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
+setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
 
 ### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING
 set stop_units           = ndays
@@ -37,28 +38,28 @@ set atm_output_freq              =  1
 set records_per_atm_output_file  = 40
 
 ### SOURCE CODE OPTIONS
-set fetch_code = true    # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set fetch_code = false    # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 set acme_tag   = master  # !!!!! CHANGE BEFORE ARCHIVING to ??????   !!!!!!!
 set tag_name   = run_acme_tag_example   # !!!!!  CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
 
 ### BUILD OPTIONS
-set debug_compile          = false     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
-set old_executable         = false     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
+set debug_compile          = true     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
+set old_executable         = true     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
 
 ### SUBMIT OPTIONS
 set submit_run             = true      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 set debug_queue            = true      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 
 ### AUTOMATIC DELETION OPTIONS
-set seconds_before_delete_source_dir = 10   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
-set seconds_before_delete_case_dir   =  3
-set seconds_before_delete_bld_dir    = 10
-set seconds_before_delete_run_dir    = -1
+set seconds_before_delete_source_dir = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
+set seconds_before_delete_case_dir   =  3   # !!!!!!! CHANGE BEFORE ARCHIVING to 10 !!!!!!
+set seconds_before_delete_bld_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
+set seconds_before_delete_run_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
 
 ### !!!! OPTIONS BELOW HERE NORMALLY SHOULDN'T BE CHANGED !!!!
 ### ----------------------------------------------------------
 ### PROCESSOR CONFIGURATION
-set processor_config = M       # !!!!!!! CHANGE BEFORE ARCHIVING to M !!!!!!
+set processor_config = custom     # To run ACME pre-alpha on Titan, set this to use the custom configuration. # !!!!!!! CHANGE BEFORE ARCHIVING to M !!!!!!
 
 ### STARTUP TYPE
 set model_start_type = initial       # options: initial, continue, branch.
@@ -66,12 +67,15 @@ set model_start_type = initial       # options: initial, continue, branch.
 ### DIRECTORIES
 set code_root_dir  = ~/ACME_code/
 set run_root_dir   = default    # defaults known for many machines. If yours isn't known, please add it!
-set short_term_root_dir = default #       ""                                              ""
+set short_term_archive_root_dir = default #       ""                                              ""
 
 #EXPLANATION FOR VARIABLES ABOVE:
 #==================================
 #run_name: the run will be named: ${tag_name}.${compset}.${resolution}.${machine}.${run_name}.  run_name is to explain the 
 #    purpose of the run (e.g. run_name=ParallelPhysDyn) or just to ensure the run name is unique (e.g. run_name=test1).
+#job_name: This is only used to name the job in the batch system. The problem is that batch systems often only 
+#    provide the first few letters of the job name when reporting on jobs inthe queue, which may not be enough 
+#    to distinguish simultaneous jobs. 
 #compset: indicates which model components and forcings to use. List choices by typing `create_newcase -list compsets`.
 #    An (outdated?) list of options is available at http://www.cesm.ucar.edu/models/cesm1.0/cesm/cesm_doc_1_0_4/a3170.html 
 #resolution: Model resolution to use. Type `create_newcase -list grids` for a list of options or see 
@@ -103,9 +107,10 @@ set short_term_root_dir = default #       ""                                    
 #    Compiling in debug mode will stop the run at the actual location an error occurs, and provide more helpful output.
 #    However, it runs about 10 times slower, and is not bit-for-bit the same because some optimizations make tiny change to the
 #    numerics.
-#old_executable: If FALSE then build a new executable (using any already compiled files). If you want a clean build then
-#    set seconds_before_delete_bld_dir>=0.   If TRUE then skip the build step entirely.
-#    If this is a path to an executable, then copy that executable into the current case instead.
+#old_executable: If this is a path to an executable, then it is used instead of recompiling (it is copied across).
+#    If TRUE then skip the build step entirely.
+#    If FALSE then build a new executable (using any already compiled files). If you want a clean build then
+#    set seconds_before_delete_bld_dir>=0.   
 #    NOTE: The executable that will be copied should be the same as would be created by compiling (for provenance).
 #    NOTE: The path should either be an absolute path, or a path relative to the case_scripts directory.
 #    NOTE: old_executable=true is a risk to provenance, so this feature may be removed in the future.
@@ -153,7 +158,7 @@ set short_term_root_dir = default #       ""                                    
 #     It will contain the files for setting up the simulation (case_scripts), the compiled files (build), and
 #     the files used to initialize the run as well as the output of the run (run).
 #     If run_root_dir is set to 'default' then this script will make an intelligent guess based on the machine.
-#short_term_root_dir:  The directory to put short-term archived data in (if do_short_term_archiving=true). If set to 
+#short_term_archive_root_dir:  The directory to put short-term archived data in (if do_short_term_archiving=true). If set to 
 #     'default', this script will make an intelligent guess based on the machine.
 #
 # Notes: 
@@ -180,7 +185,7 @@ set short_term_root_dir = default #       ""                                    
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.19
+set script_ver = 1.0.25
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -310,12 +315,12 @@ if ( `lowercase $short_term_archive_root_dir` == 'default' ) then
     set    user_name = `whoami`
     set short_term_archive_root_dir = /p/lscratchd/${user_name}/archive/${case_name}
   else
-    echo 'run_acme ERROR: Default short_term_root_dir for  '${machine}' is unspecified. Please add specification to this script'
+    echo 'run_acme ERROR: Default short_term_archive_root_dir for  '${machine}' is unspecified. Please add specification to this script'
     exit 32
   endif
 endif
 
-
+set temp_case_scripts_dir = $run_root_dir/${case_name}    # This part of a workaround to put the case_name into the script names.  It is necessary because create_newcase uses the tail of the case directory.
 set case_scripts_dir = $run_root_dir/case_scripts
 set case_build_dir   = $run_root_dir/build
 set case_run_dir     = $run_root_dir/run
@@ -331,10 +336,12 @@ echo ''
 #============================================
 
 ### Remove existing case_scripts directory (so it doesn't have to be done manually every time)
+### Note: This script causes create_newcase to generate a temporary directory (part of a workaround to put the case_name into the script names)
+###       If something goes wrong, this temporary directory is sometimes left behind, so we need to delete it too.
 ### Note: To turn off the deletion, set $num_seconds_until_delete to be negative.
 ###       To delete immediately, set $num_seconds_until_delete to be zero.
 
-if ( -d $case_scripts_dir ) then
+if ( -d $case_scripts_dir || -d $temp_case_scripts_dir ) then
   if ( ${seconds_before_delete_case_dir} >= 0 ) then
     set num_seconds_until_delete = $seconds_before_delete_case_dir
     echo ''
@@ -347,6 +354,7 @@ if ( -d $case_scripts_dir ) then
     end
  #  ls -ld $case_scripts_dir     # For testing this script.
     rm -fr $case_scripts_dir
+    rm -fr $temp_case_scripts_dir
     echo 'run_acme:  Deleted $case_scripts_dir directory for : '${case_name} 
   else
     echo 'run_acme: WARNING: $case_scripts_dir='$case_scripts_dir' exists '
@@ -448,13 +456,13 @@ endsw
 
 if ( -f $code_root_dir/$tag_name/cime/scripts/create_newcase ) then    # ACME version uses CIME
     set cime_space='  '
-    set shortterm_archive_script = case_scripts.st_archive
-    set longterm_archive_script =  case_scripts.lt_archive
+    set shortterm_archive_script = ${case_name}.st_archive
+    set longterm_archive_script =  ${case_name}.lt_archive
     cd $code_root_dir/$tag_name/cime/scripts
 else if ( -f $code_root_dir/$tag_name/scripts/create_newcase ) then    # pre-CIME version of ACME
     set cime_space=' '
     set shortterm_archive_script = st_archive
-    set longterm_archive_script = case_scripts.l_archive
+    set longterm_archive_script = ${case_name}.l_archive
     cd $code_root_dir/$tag_name/scripts/
 else                                                                   # No version of create_newcase found
   echo 'run_acme ERROR: create_newcase script cannot be found in '
@@ -473,31 +481,61 @@ echo ''
 echo 'run_acme: -------- Starting create_newcase --------'
 echo ''
 
-./create_newcase -case $case_scripts_dir  \
+./create_newcase -case $temp_case_scripts_dir  \
 		 -mach $machine           \
 		 -compset $compset        \
 		 -res $resolution         \
 		 -project $project        \
 		 -pecount $std_proc_configuration
 
-cd $case_scripts_dir
-
 echo ''
 echo 'run_acme: -------- Finished create_newcase --------'
 echo ''
+
+mv $temp_case_scripts_dir $case_scripts_dir   #This part of a workaround to put the case_name into the script names.
+cd $case_scripts_dir
+
+#mv LockedFiles/env_case.xml.locked    ./env_case.xml.locked.temp
+rm -f LockedFiles/env_case.xml.locked
+./xmlchange -file env_case.xml -id CASEROOT -val "$case_scripts_dir" # This part of a workaround to put the case_name into the script names.
+cp env_case.xml LockedFiles/env_case.xml.locked
 
 #NOTE: Details of the configuration setup by create_newcase are in $case_scripts_dir/env_case.xml, which should NOT be edited.  
 #      It will be used by cesm_setup (formerly 'configure -case'). 
 #NOTE: To get verbose output from create_newcase, add '-v' to the argument list. 
 
-#============================================
+#============================================================
 # COPY THIS SCRIPT TO THE CASE DIRECTORY TO ENSURE PROVENANCE
-#============================================
+#============================================================
 #NOTE: $0 contains the name of this script, and is a feature of csh.
 
-mkdir -p $case_scripts_dir/build_and_run_script_provenance
+set script_provenance_dir  = $case_scripts_dir/run_script_provenance 
 set script_provenance_name = $0.`date +%F_%T_%Z`
-cp -f $this_script_dir/$0 $case_scripts_dir/build_and_run_script_provenance/$script_provenance_name
+mkdir -p $script_provenance_dir
+cp -f $this_script_dir/$0 $script_provenance_dir/$script_provenance_name
+
+#========================================================
+# CREATE LOGICAL LINKS BETWEEN RUN_ROOT & THIS_SCRIPT_DIR
+#========================================================
+
+#NOTE: This is to make it easy for the user to migrate easily to the run_root_dir
+#NOTE: Starting the suffix wit 'a' helps to keep this near the script in ls 
+#      (but in practice the behavior depends on the LC_COLLATE system variable).
+#NOTE: $0 contains the name of this script, and is a feature of csh.
+
+# Link in this_script_dir to run_root_dir 
+set run_dir_link = $this_script_dir/$0=a_run_link
+if ( -l $run_dir_link ) then
+  rm -f $run_dir_link
+endif
+ln -s $run_root_dir $run_dir_link      
+
+# Link in run_root_dir to this_script_dir
+set this_script_dir_link = $run_root_dir/orig_script_dir
+if ( -l $this_script_dir_link ) then
+  rm -f $this_script_dir_link
+endif
+ln -s $this_script_dir $this_script_dir_link 
 
 #============================================
 # SPECIFY BUILD AND RUN DIRECTORIES
@@ -768,7 +806,7 @@ echo 'run_acme: -------- Starting Build --------'
 echo ''
 
 if ( `lowercase $old_executable` == false ) then
-    ./case_scripts.build
+    ./${case_name}.build
 else if ( `lowercase $old_executable` == true ) then
     if ( -x $case_build_dir/cesm.exe ) then       #use executable previously generated for this case_name.
 	echo 'run_acme: Skipping build because $old_executable='$old_executable
@@ -794,6 +832,10 @@ else
         #      However the build system currently rebuilds several files every time which takes many minutes.
         #      When this gets fixed the cost of deleting this feature will be minor. 
         #      (Also see comments for user options at top of this file.)
+        #
+        #NOTE: The alternative solution is to set EXEROOT in env_build.xml.  
+        #      That is cleaner and quicker, but it means that the executable is outside this directory,
+        #      which weakens provenance if this directory is captured for provenance.
         echo 'run_acme: WARNING: Setting BUILD_COMPLETE = TRUE.  This is a little risky, but trusting the user.'
         ./xmlchange -file env_build.xml -id BUILD_COMPLETE -val TRUE
         cp -fp $old_executable $case_build_dir/
@@ -827,28 +869,28 @@ set machine = `lowercase $machine`
 echo 'Setting batch queue options for $machine = '$machine'  with $debug_queue = '$debug_queue
 if ( `lowercase $debug_queue` == 'true' ) then
   if ( $machine == 'cab' ) then
-    sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pdebug"                     case_scripts.run
-    sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=00:30:00" case_scripts.run
+    sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pdebug"                     ${case_name}.run
+    sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=00:30:00" ${case_name}.run
   else if ( $machine == 'hopper' || $machine == 'edison' ) then
-    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        case_scripts.run
-    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   case_scripts.run
+    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
+    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
   else if ( $machine == 'titan' ) then
-    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        case_scripts.run
-    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   case_scripts.run
+    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
+    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
   else
     echo 'run_acme ERROR: This script does not know name of debug queue or walltime limits on $machine='$machine
     exit  310      
   endif
 else #if NOT to be run in debug_queue
   if ( $machine == 'cab' ) then
-    sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pbatch"                     case_scripts.run
-    sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=02:00:00" case_scripts.run
+    sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pbatch"                     ${case_name}.run
+    sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=02:00:00" ${case_name}.run
   else if ( $machine == 'hopper' || $machine == 'edison' ) then
-    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q regular"                      case_scripts.run
-    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   case_scripts.run
+    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q regular"                      ${case_name}.run
+    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   ${case_name}.run
   else if ( $machine == 'titan' ) then
-    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                        case_scripts.run
-    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   case_scripts.run
+    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                        ${case_name}.run
+    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   ${case_name}.run
   else
     echo 'run_acme WARNING: This script does not have defaults for batch queue and run time on $machine='$machine
     echo '                  Assuming default ACME values.'
@@ -867,23 +909,23 @@ endif
 mkdir -p run.output      ### Make directory that stdout and stderr will go into.
  
 if ( $machine == 'hopper' || $machine == 'edison' ) then
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${case_name}"                               case_scripts.run
-    sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 case_scripts.run
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' case_scripts.run
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
+    sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st_archive.${case_name}"                    $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                            $shortterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt_archive.${case_name}"                    $longterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                            $longterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else if ( $machine == 'titan' ) then
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${case_name}"                               case_scripts.run
-    sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 case_scripts.run
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' case_scripts.run
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
+    sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st_archive.${case_name}"                    $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                             $shortterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt_archive.${case_name}"                    $longterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                             $longterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else
@@ -903,8 +945,6 @@ endif
 
 # DOUT_L_MSROOT is the directory in your account on the local mass storage system (typically an HPSS tape system)
 ./xmlchange -file env_run.xml -id DOUT_L_MSROOT -val "ACME_simulation_output/${case_name}"
-
-
 
 
 #============================================
@@ -1013,7 +1053,7 @@ echo 'run_acme: -------- Starting Submission to Run Queue --------'
 echo ''
 
 if ( `lowercase $submit_run` == 'true' ) then
-    ./case_scripts.submit
+    ./${case_name}.submit
 else
     echo 'run_acme: Run NOT submitted because $submit_run = '$submit_run
 endif
@@ -1061,6 +1101,16 @@ echo ''
 # 1.0.16   2015-11-30    Added $machine to the case_name (PJC)
 # 1.0.17   2015-11-30    Added date to filename when archiving this script (so previous version doesn't get overwritten) (PJC)
 # 1.0.18   2015-11-30    Will now automatically use 'git checkout --detach' so users cannot alter master by accident (PJC)
+# 1.0.19   ??            Added an option to set the directory for short term archiving.  Also fixed some comments. (PMC)
+# 1.0.20   2015-12-10    Improved comments, especially for 'old_executable' option. (PJC)
+# 1.0.21   2015-12-10    Modified so that the script names contain "$case_name" rather than "case_scripts".
+#                        Create_newcase doesn't have the flexibility to do what we need, and the rest of the CESM scripts
+#                        are designed to stop us doing what we want, so we had to defeat those protections, but
+#                        we do this in a safe way that reinstates the protections. (PJC)
+# 1.0.22   2015-12-11    Creates logical links so it is easy to move between this this_script_dir and run_root_dir. (PJC)
+# 1.0.23   2015-12-11    Changed references to build_and_run_script to just run_script, for consistency and brevity. (PJC)
+# 1.0.24   2015-12-11    The temp_case_scripts_dir is now handled like case_scripts_dir for checking and deletion.  (PJC)
+# 1.0.25   2015-12-11    Can have separate name for batch scheduler, to help distinguish runs. (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
              
