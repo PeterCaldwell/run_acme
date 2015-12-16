@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default #       ""                            
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.25
+set script_ver = 1.0.26
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -238,6 +238,7 @@ endif
 
 
 if ( `lowercase $fetch_code` == true ) then
+  echo 'run_acme: Downloading code from the ACME git repository.'
   if ( -d $code_root_dir/$tag_name ) then 
     if ( $seconds_before_delete_source_dir >= 0 ) then
       set num_seconds_until_delete = $seconds_before_delete_source_dir
@@ -253,8 +254,13 @@ if ( `lowercase $fetch_code` == true ) then
       rm -fr $code_root_dir/$tag_name
       echo 'run_acme: Deleted '$code_root_dir/$tag_name
     else
-      echo 'run_acme: ERROR: $code_root_dir = '${code_root_dir}' and seconds_before_delete_source_dir<0, '
+      echo 'run_acme: ERROR: $code_root_dir/$tag_name exists, and $seconds_before_delete_source_dir<0, '
       echo '          so dying instead of overwriting.'
+      echo '          You likely want to either set fetch_code=false, change $tag_name, or'
+      echo '          change change seconds_before_delete_source_dir.'
+      echo '          Note: $fetch_code = '$fetch_code
+      echo '                $code_root_dir/$tag_name = '$code_root_dir/$tag_name
+      echo '                $seconds_before_delete_source_dir = '$seconds_before_delete_source_dir
       exit 20
     endif #$seconds_before_delete_source_dir >=0
   endif #$code_root_dir exists
@@ -293,7 +299,7 @@ echo 'run_acme: $case_name        = '$case_name
 #config_machines.xml?
 
 if ( `lowercase $run_root_dir` == 'default' ) then
-  if ( $machine == 'edison' || $machine == 'hopper' ) then
+  if ( $machine == 'edison' || $machine == 'hopper' || $machine == 'cori' ) then
     set run_root_dir = $SCRATCH/ACME_simulations/${case_name}
   else if (  $machine == 'titan' ) then
     set run_root_dir = ${PROJWORK}/${project}/${USER}/ACME_simulations/${case_name}
@@ -307,7 +313,7 @@ if ( `lowercase $run_root_dir` == 'default' ) then
 endif
 
 if ( `lowercase $short_term_archive_root_dir` == 'default' ) then
-  if ( $machine == 'edison' || $machine == 'hopper' ) then
+  if ( $machine == 'edison' || $machine == 'hopper' || $machine == 'cori' ) then
     set short_term_archive_root_dir = $SCRATCH/archive/${case_name}
   else if (  $machine == 'titan' ) then
     set short_term_archive_root_dir = ${PROJWORK}/${project}/${USER}/archive/${case_name}
@@ -382,7 +388,7 @@ if ( -d $case_build_dir ) then
     rm -fr $case_build_dir     
     echo 'run_acme:  Deleted $case_build_dir directory for '${case_name} 
   else
-    echo 'run_acme: WARNING $case_build_dir='$case_build_dir' exists '
+    echo 'run_acme: NOTE: $case_build_dir='$case_build_dir' exists '
     echo '          and is not being removed because seconds_before_delete_bld_dir<0.'
   endif
 endif
@@ -404,7 +410,7 @@ if ( -d $case_run_dir ) then
     rm -fr $case_run_dir     
     echo 'run_acme:  Deleted $case_run_dir directory for '${case_name} 
   else
-    echo 'run_acme WARNING: $case_run_dir='$case_run_dir' exists '
+    echo 'run_acme NOTE: $case_run_dir='$case_run_dir' exists '
     echo '         and is not being removed because seconds_before_delete_run_dir<0.'
   endif
 endif
@@ -474,6 +480,17 @@ else                                                                   # No vers
 endif 
 
 #=============================================================
+# SET MACHINE NAME FOR CREATE_NEWCASE
+#=============================================================
+# Note: Sometimes, the machine name for create_newcase needs to be handled specially.
+
+if ( `lowercase $machine` == 'cori' ) then
+  set newcase_machine = corip1
+else
+  set newcase_machine = `lowercase $machine`
+endif
+
+#=============================================================
 # CREATE CASE_SCRIPTS DIRECTORY AND POPULATE WITH NEEDED FILES
 #=============================================================
 
@@ -482,7 +499,7 @@ echo 'run_acme: -------- Starting create_newcase --------'
 echo ''
 
 ./create_newcase -case $temp_case_scripts_dir  \
-		 -mach $machine           \
+		 -mach $newcase_machine        \
 		 -compset $compset        \
 		 -res $resolution         \
 		 -project $project        \
@@ -868,13 +885,16 @@ echo ''
 set machine = `lowercase $machine`
 echo 'Setting batch queue options for $machine = '$machine'  with $debug_queue = '$debug_queue
 if ( `lowercase $debug_queue` == 'true' ) then
-  if ( $machine == 'cab' ) then
+  if ( $machine == cab ) then
     sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pdebug"                     ${case_name}.run
     sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=00:30:00" ${case_name}.run
-  else if ( $machine == 'hopper' || $machine == 'edison' ) then
+  else if ( $machine == hopper || $machine == edison ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
-  else if ( $machine == 'titan' ) then
+  else if ( $machine == cori ) then
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=debug" ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=00:30:00"   ${case_name}.run
+  else if ( $machine == titan ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
   else
@@ -882,15 +902,18 @@ if ( `lowercase $debug_queue` == 'true' ) then
     exit  310      
   endif
 else #if NOT to be run in debug_queue
-  if ( $machine == 'cab' ) then
-    sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pbatch"                     ${case_name}.run
-    sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=02:00:00" ${case_name}.run
-  else if ( $machine == 'hopper' || $machine == 'edison' ) then
-    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q regular"                      ${case_name}.run
-    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   ${case_name}.run
-  else if ( $machine == 'titan' ) then
-    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                        ${case_name}.run
-    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"   ${case_name}.run
+  if ( $machine == cab ) then
+    sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pbatch"                       ${case_name}.run
+    sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=02:00:00"   ${case_name}.run
+  else if ( $machine == hopper || $machine == edison ) then
+    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q regular"                        ${case_name}.run
+    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
+  else if ( $machine == cori ) then
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=regular" ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=00:30:00"     ${case_name}.run
+  else if ( $machine == titan ) then
+    sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                          ${case_name}.run
+    sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
   else
     echo 'run_acme WARNING: This script does not have defaults for batch queue and run time on $machine='$machine
     echo '                  Assuming default ACME values.'
@@ -908,17 +931,27 @@ endif
 
 mkdir -p run.output      ### Make directory that stdout and stderr will go into.
  
-if ( $machine == 'hopper' || $machine == 'edison' ) then
+if ( $machine == hopper || $machine == edison ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                            $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                             $shortterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                            $longterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                             $longterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
-else if ( $machine == 'titan' ) then
+else if ( $machine == cori ) then
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job_name=${job_name}"                ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --account=${project}"                  ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${job_name}.o${SLURM_JOB_ID}' ${case_name}.run
+    	      
+    sed -i /"#SBATCH${cime_space}-N"/c"#SBATCH  -N st=${job_name}"                             $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}-j oe"/a'#SBATCH  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}-N"/c"#SBATCH  -N lt=${job_name}"                             $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}-j oe"/a'#SBATCH  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
+
+else if ( $machine == titan ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
@@ -1111,6 +1144,7 @@ echo ''
 # 1.0.23   2015-12-11    Changed references to build_and_run_script to just run_script, for consistency and brevity. (PJC)
 # 1.0.24   2015-12-11    The temp_case_scripts_dir is now handled like case_scripts_dir for checking and deletion.  (PJC)
 # 1.0.25   2015-12-11    Can have separate name for batch scheduler, to help distinguish runs. (PJC)
+# 1.0.26   2015-12-16    Can now handle Cori (NERSC), plus improved error messages.  (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
              
