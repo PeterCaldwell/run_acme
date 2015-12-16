@@ -18,56 +18,56 @@ endif
 
 ### BASIC INFO ABOUT RUN
 set run_name   = run_acme_example   # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
-set job_name   = 1.0.25_test         # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850           # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
-set resolution = ne30_m120         # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
-set machine    = titan             # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
+set job_name   = $run_name          # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
+set compset    = A_B1850            # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
+set resolution = ne30_m120          # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
+set machine    = titan              # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
 setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
 
 ### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING
-set stop_units           = ndays
-set stop_num             = 1
-set restart_units        = $stop_units
-set restart_num          = $stop_num
-set num_resubmits        = 0
-set do_short_term_archiving = false
-set do_long_term_archiving  = false
+set stop_units           = ndays        # !!!!!! CHANGE BEFORE ARCHIVING to ndays   !!!!!!!
+set stop_num             = 1            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
+set restart_units        = $stop_units  # !!!!!! CHANGE BEFORE ARCHIVING to $stop_units  !!!!!!!
+set restart_num          = $stop_num    # !!!!!! CHANGE BEFORE ARCHIVING to $stop_num    !!!!!!!
+set num_resubmits        = 0            # !!!!!! CHANGE BEFORE ARCHIVING to 0            !!!!!!!
+set do_short_term_archiving = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
+set do_long_term_archiving  = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
 
 ### SIMULATION OPTIONS
-set atm_output_freq              =  1
-set records_per_atm_output_file  = 40
+set atm_output_freq              =  1   # !!!!!! CHANGE BEFORE ARCHIVING to 1    !!!!!!!
+set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40   !!!!!!!
 
 ### SOURCE CODE OPTIONS
-set fetch_code = false    # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
-set acme_tag   = master  # !!!!! CHANGE BEFORE ARCHIVING to ??????   !!!!!!!
+set fetch_code = true                   # !!!!! CHANGE BEFORE ARCHIVING to true   !!!!!!!
+set acme_tag   = master                 # !!!!! CHANGE BEFORE ARCHIVING to master !!!!!!!
 set tag_name   = run_acme_tag_example   # !!!!!  CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
 
 ### BUILD OPTIONS
-set debug_compile          = true     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
-set old_executable         = true     # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
+set debug_compile          = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
+set old_executable         = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
 
 ### SUBMIT OPTIONS
-set submit_run             = true      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
-set debug_queue            = true      # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set submit_run             = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set debug_queue            = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 
 ### AUTOMATIC DELETION OPTIONS
 set seconds_before_delete_source_dir = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
-set seconds_before_delete_case_dir   =  3   # !!!!!!! CHANGE BEFORE ARCHIVING to 10 !!!!!!
+set seconds_before_delete_case_dir   = 10   # !!!!!!! CHANGE BEFORE ARCHIVING to 10 !!!!!!
 set seconds_before_delete_bld_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
 set seconds_before_delete_run_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
 
 ### !!!! OPTIONS BELOW HERE NORMALLY SHOULDN'T BE CHANGED !!!!
 ### ----------------------------------------------------------
 ### PROCESSOR CONFIGURATION
-set processor_config = custom     # To run ACME pre-alpha on Titan, set this to use the custom configuration. # !!!!!!! CHANGE BEFORE ARCHIVING to M !!!!!!
+set processor_config = custom   # To run ACME pre-alpha on Titan, set this to use the 'custom' configuration. # !!!!!!! CHANGE BEFORE ARCHIVING to M (or to 'custom' for pre-alpha version) !!!!!!
 
 ### STARTUP TYPE
-set model_start_type = initial       # options: initial, continue, branch.
+set model_start_type = initial       # options: initial, continue, branch.  # !!!!!!! CHANGE BEFORE ARCHIVING to initial   !!!!!!
 
 ### DIRECTORIES
-set code_root_dir  = ~/ACME_code/
-set run_root_dir   = default    # defaults known for many machines. If yours isn't known, please add it!
-set short_term_archive_root_dir = default #       ""                                              ""
+set code_root_dir  = ~/ACME_code/         # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!!
+set run_root_dir   = default              # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
+set short_term_archive_root_dir = default # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
 
 #EXPLANATION FOR VARIABLES ABOVE:
 #==================================
@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default #       ""                            
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.26
+set script_ver = 1.0.27
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -301,7 +301,7 @@ echo 'run_acme: $case_name        = '$case_name
 if ( `lowercase $run_root_dir` == 'default' ) then
   if ( $machine == 'edison' || $machine == 'hopper' || $machine == 'cori' ) then
     set run_root_dir = $SCRATCH/ACME_simulations/${case_name}
-  else if (  $machine == 'titan' ) then
+  else if (  $machine == 'titan' || $machine == 'eos' ) then
     set run_root_dir = ${PROJWORK}/${project}/${USER}/ACME_simulations/${case_name}
   else if (  $machine == 'cab' ) then
     set    user_name = `whoami`
@@ -315,7 +315,7 @@ endif
 if ( `lowercase $short_term_archive_root_dir` == 'default' ) then
   if ( $machine == 'edison' || $machine == 'hopper' || $machine == 'cori' ) then
     set short_term_archive_root_dir = $SCRATCH/archive/${case_name}
-  else if (  $machine == 'titan' ) then
+  else if (  $machine == 'titan' || $machine == 'eos'  ) then
     set short_term_archive_root_dir = ${PROJWORK}/${project}/${USER}/archive/${case_name}
   else if (  $machine == 'cab' ) then
     set    user_name = `whoami`
@@ -486,6 +486,8 @@ endif
 
 if ( `lowercase $machine` == 'cori' ) then
   set newcase_machine = corip1
+else if ( `lowercase $machine` == 'eos' ) then
+  set newcase_machine = titan
 else
   set newcase_machine = `lowercase $machine`
 endif
@@ -894,7 +896,7 @@ if ( `lowercase $debug_queue` == 'true' ) then
   else if ( $machine == cori ) then
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=debug" ${case_name}.run
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=00:30:00"   ${case_name}.run
-  else if ( $machine == titan ) then
+  else if ( $machine == titan || $machine == eos  ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
   else
@@ -911,7 +913,7 @@ else #if NOT to be run in debug_queue
   else if ( $machine == cori ) then
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=regular" ${case_name}.run
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=00:30:00"     ${case_name}.run
-  else if ( $machine == titan ) then
+  else if ( $machine == titan || $machine == eos  ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                          ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
   else
@@ -951,7 +953,7 @@ else if ( $machine == cori ) then
     sed -i /"#SBATCH${cime_space}-N"/c"#SBATCH  -N lt=${job_name}"                             $longterm_archive_script
     sed -i /"#SBATCH${cime_space}-j oe"/a'#SBATCH  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
-else if ( $machine == titan ) then
+else if ( $machine == titan || $machine == eos ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
@@ -1145,8 +1147,14 @@ echo ''
 # 1.0.24   2015-12-11    The temp_case_scripts_dir is now handled like case_scripts_dir for checking and deletion.  (PJC)
 # 1.0.25   2015-12-11    Can have separate name for batch scheduler, to help distinguish runs. (PJC)
 # 1.0.26   2015-12-16    Can now handle Cori (NERSC), plus improved error messages.  (PJC)
+# 1.0.27   2015-12-16    Partial implementation for Eos (OLCF), plus cosmetic changes.  (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
+
+### ---------- Desired features still to be implemented ------------
+# +) fetch_code = update   (pull in latest updates to branch)    (PJC)
+# +) A way to run the testsuite.? (PJC)
+# +) Reorder options at top to match workflow. (PJC)
              
 ###Example sed commands
 #============================
