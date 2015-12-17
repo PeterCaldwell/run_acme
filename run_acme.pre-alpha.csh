@@ -1550,14 +1550,16 @@ if ( $machine == hopper || $machine == edison ) then
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else if ( $machine == cori ) then
-    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job_name=${job_name}"                ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --account=${project}"                  ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${job_name}.o${SLURM_JOB_ID}' ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=${job_name}"                ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                  ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' ${case_name}.run
     	      
-    sed -i /"#SBATCH${cime_space}-N"/c"#SBATCH  -N st=${job_name}"                             $shortterm_archive_script
-    sed -i /"#SBATCH${cime_space}-j oe"/a'#SBATCH  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#SBATCH${cime_space}-N"/c"#SBATCH  -N lt=${job_name}"                             $longterm_archive_script
-    sed -i /"#SBATCH${cime_space}-j oe"/a'#SBATCH  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=st+${job_name}"                      $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                           $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=lt+${job_name}"                      $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                           $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $longterm_archive_script
 
 else if ( $machine == titan || $machine == eos ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
