@@ -19,14 +19,14 @@ endif
 ### BASIC INFO ABOUT RUN
 set run_name   = pre-alpha-default   # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
 set job_name   = $run_name          # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850            # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
+set compset    = A_B1850CN            # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
 set resolution = ne30_m120          # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
 set machine    = titan              # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
 setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
 
 ### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING
 set stop_units           = ndays        # !!!!!! CHANGE BEFORE ARCHIVING to ndays   !!!!!!!
-set stop_num             = 1            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
+set stop_num             = 5            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
 set restart_units        = $stop_units  # !!!!!! CHANGE BEFORE ARCHIVING to $stop_units  !!!!!!!
 set restart_num          = $stop_num    # !!!!!! CHANGE BEFORE ARCHIVING to $stop_num    !!!!!!!
 set num_resubmits        = 0            # !!!!!! CHANGE BEFORE ARCHIVING to 0            !!!!!!!
@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.27
+set script_ver = 1.0.28
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -1445,7 +1445,7 @@ else if ( `lowercase $old_executable` == true ) then
         echo 'run_acme: WARNING: Setting BUILD_COMPLETE = TRUE.  This is a little risky, but trusting the user.'
         ./xmlchange -file env_build.xml -id BUILD_COMPLETE -val TRUE
     else
-	echo 'run_acme ERROR: $old_executable='$old_executable' but  $case_build_dir/cesm.exe='$case_build_dir/cesm.exe
+	echo 'run_acme ERROR: $old_executable='$old_executable' but '$case_build_dir/cesm.exe
 	echo '                does not exist or is not an executable'
 	exit 297
     endif
@@ -1756,6 +1756,7 @@ echo ''
 # 1.0.25   2015-12-11    Can have separate name for batch scheduler, to help distinguish runs. (PJC)
 # 1.0.26   2015-12-16    Can now handle Cori (NERSC), plus improved error messages.  (PJC)
 # 1.0.27   2015-12-16    Partial implementation for Eos (OLCF), plus cosmetic changes.  (PJC)
+# 1.0.28   2015-12-17    Fixed Cori batch options.  Improved an error message.  (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
 
