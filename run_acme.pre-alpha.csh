@@ -40,7 +40,7 @@ set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40  
 ### SOURCE CODE OPTIONS
 set fetch_code = true                   # !!!!! CHANGE BEFORE ARCHIVING to true   !!!!!!!
 set acme_tag   = master                 # !!!!! CHANGE BEFORE ARCHIVING to master !!!!!!!
-set tag_name   = master                 # !!!!!  CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
+set tag_name   = master                 # !!!!! CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
 
 ### BUILD OPTIONS
 set debug_compile          = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
