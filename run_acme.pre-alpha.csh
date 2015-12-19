@@ -19,7 +19,7 @@ endif
 ### BASIC INFO ABOUT RUN
 set run_name   = pre-alpha-default   # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
 set job_name   = $run_name          # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850CN            # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
+set compset    = A_B1850CN          # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
 set resolution = ne30_m120          # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
 set machine    = titan              # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
 setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
@@ -834,592 +834,6 @@ EOF
 # config_am_eliassenpalm_enable = .true.
 # config_am_mixedlayerdepths_enable = .true.
 
-### Custom MPAS-O streams ###
-cat <<EOF > SourceMods/src.mpas-o/streams.ocean
-<streams>
-
-<immutable_stream name="mesh"
-                  type="none"
-                  filename_template="/lustre/atlas1/cli900/world-shared/cesm/inputdata/ocn/mpas-o/mpas120/ocean120km.151031.nc"
-/>
-<immutable_stream name="input"
-                  type="input"
-                  filename_template="/lustre/atlas1/cli900/world-shared/cesm/inputdata/ocn/mpas-o/mpas120/ocean120km.151031.nc"
-                  input_interval="initial_only"
-/>
-
-<!--
-The restart stream is actually controlled via the coupler.
-Changing output_interval here will not have any affect on
-the frequency restart files are written.
-
-Changing the output_interval could cause loss of data.
-
-The output_interval is set to 1 second to ensure each restart frame has a
-unique file.
--->
-<immutable_stream name="restart"
-				  type="input;output"
-				  filename_template="rst.ocn.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-				  filename_interval="output_interval"
-				  reference_time="0000-01-01_00:00:00"
-				  clobber_mode="truncate"
-				  input_interval="initial_only"
-				  output_interval="00-00-00_00:00:01"/>
-
-<!--
-output is the main history output stream. You can add auxiliary streams to
-this stream to include more fields.
--->
-
-<stream name="output"
-		type="output"
-		filename_template="hist.ocn.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-		filename_interval="00-01-00_00:00:00"
-		reference_time="0000-01-01_00:00:00"
-		clobber_mode="truncate"
-		output_interval="00-01-00_00:00:00">
-
-	<stream name="mesh"/>
-	<stream name="real_world"/>
-        <stream name="forcing"/>
-	<var_struct name="tracers"/>
-	<var name="layerThickness"/>
-	<var name="ssh"/>
-	<var name="maxLevelEdgeTop"/>
-	<var name="vertCoordMovementWeights"/>
-	<var name="edgeMask"/>
-	<var name="vertexMask"/>
-	<var name="cellMask"/>
-	<var name="refZMid"/>
-	<var name="refLayerThickness"/>
-	<var name="xtime"/>
-	<var name="zMid"/>
-	<var name="zTop"/>
-	<var name="kineticEnergyCell"/>
-	<var name="relativeVorticityCell"/>
-	<var name="areaCellGlobal"/>
-	<var name="areaEdgeGlobal"/>
-	<var name="areaTriangleGlobal"/>
-	<var name="volumeCellGlobal"/>
-	<var name="volumeEdgeGlobal"/>
-	<var name="CFLNumberGlobal"/>
-	<var name="normalVelocity"/>
-	<var name="velocityZonal"/>
-	<var name="velocityMeridional"/>
-	<var name="displacedDensity"/>
-	<var name="potentialDensity"/>
-	<var name="boundaryLayerDepth"/>
-	<var name="boundaryLayerDepthEdge"/>
-	<var name="indexBoundaryLayerDepth"/>
-	<var name="indexSurfaceLayerDepth"/>
-	<var name="surfaceFrictionVelocity"/>
-	<var name="windStressZonalDiag"/>
-	<var name="windStressMeridionalDiag"/>
-	<var name="surfaceBuoyancyForcing"/>
-	<var name="seaSurfacePressure"/>
-
-</stream>
-
-<!--
-Streams between this line and the auxiliary stream line below are analysis member streams.
-They can be used to perform online analysis of the simulation and control the output of
-the analysis data.
--->
-
-<stream name="globalStatsOutput"
-        type="output"
-        filename_template="ocn.globalStats.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="00-01-00_00:00:00"
-        clobber_mode="truncate"
-        packages="globalStatsAMPKG"
-        output_interval="00-01-00_00:00:00">
-
-    <var_array name="minGlobalStats"/>
-    <var_array name="maxGlobalStats"/>
-    <var_array name="sumGlobalStats"/>
-    <var_array name="rmsGlobalStats"/>
-    <var_array name="avgGlobalStats"/>
-    <var_array name="vertSumMinGlobalStats"/>
-    <var_array name="vertSumMaxGlobalStats"/>
-    <var name="xtime"/>
-</stream>
-
-<stream name="surfaceAreaWeightedAveragesOutput"
-        type="output"
-        filename_template="ocn.surfaceAreaWeightedAverages.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="00-01-00_00:00:00"
-        clobber_mode="truncate"
-        packages="surfaceAreaWeightedAveragesAMPKG"
-        output_interval="00-01-00_00:00:00">
-
-    <var_array name="minValueWithinOceanRegion"/>
-    <var_array name="maxValueWithinOceanRegion"/>
-    <var_array name="avgValueWithinOceanRegion"/>
-    <var name="xtime"/>
-</stream>
-
-<stream name="waterMassCensusOutput"
-        type="output"
-        filename_template="ocn.waterMassCensus.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="waterMassCensusAMPKG"
-        output_interval="00-00-05_00:00:00" >
-
-    <var_array name="waterMassCensusTemperatureValues"/>
-    <var_array name="waterMassCensusSalinityValues"/>
-    <var_array name="waterMassFractionalDistribution"/>
-    <var_array name="potentialDensityOfTSDiagram"/>
-    <var_array name="zPositionOfTSDiagram"/>
-    <var name="xtime"/>
-</stream>
-
-<stream name="layerVolumeWeightedAverageOutput"
-        type="output"
-        filename_template="ocn.layerVolumeWeightedAverage.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="layerVolumeWeightedAverageAMPKG"
-        output_interval="00-00-05_00:00:00" >
-
-    <var_array name="minValueWithinOceanLayerRegion"/>
-    <var_array name="maxValueWithinOceanLayerRegion"/>
-    <var_array name="avgValueWithinOceanLayerRegion"/>
-    <var_array name="minValueWithinOceanVolumeRegion"/>
-    <var_array name="maxValueWithinOceanVolumeRegion"/>
-    <var_array name="avgValueWithinOceanVolumeRegion"/>
-    <var name="xtime"/>
-</stream>
-
-<stream name="zonalMeanOutput"
-        type="output"
-        filename_template="ocn.zonalMeans.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="zonalMeanAMPKG"
-        output_interval="0000_12:00:00" >
-
-    <var_array name="tracersZonalMean"/>
-    <var name="xtime"/>
-    <var name="binCenterZonalMean"/>
-    <var name="binBoundaryZonalMean"/>
-    <var name="velocityZonalZonalMean"/>
-    <var name="velocityMeridionalZonalMean"/>
-    <var name="refZMid"/>
-    <var name="refBottomDepth"/>
-</stream>
-
-<stream name="okuboWeissOutput"
-        type="output"
-        filename_template="ocn.okuboWeiss.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="okuboWeissAMPKG"
-        output_interval="00-00-05_00:00:00" >
-
-    <stream name="mesh"/>
-    <var name="xtime"/>
-    <var name="okuboWeiss"/>
-    <var name="vorticity"/>
-    <var name="eddyID"/>
-</stream>
-
-<stream name="meridionalHeatTransportOutput"
-        type="output"
-        filename_template="ocn.meridionalHeatTransport.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-        filename_interval="01-00-00_00:00:00"
-        reference_time="0000-01-01_00:00:00"
-        clobber_mode="truncate"
-        packages="meridionalHeatTransportAMPKG"
-        output_interval="0001_00:00:00" >
-
-    <var name="xtime"/>
-    <var name="binBoundaryMerHeatTrans"/>
-    <var name="meridionalHeatTransportLatZ"/>
-    <var name="meridionalHeatTransportLat"/>
-    <var name="refZMid"/>
-    <var name="refBottomDepth"/>
-</stream>
-
-<stream name="testComputeIntervalOutput"
-        type="output"
-        filename_template="ocn.testComputeInterval.\$Y-\$M-\$D.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="testComputeIntervalAMPKG"
-        output_interval="00-00-01_00:00:00" >
-
-    <var name="xtime"/>
-    <var name="testComputeIntervalCounter"/>
-</stream>
-
-<stream name="highFrequencyOutput"
-        type="output"
-        filename_template="ocn.highFrequencyOutput.\$Y-\$M-\$D.nc"
-        filename_interval="01-00-00_00:00:00"
-        reference_time="0000-01-01_00:00:00"
-        clobber_mode="truncate"
-        packages="highFrequencyOutputAMPKG"
-        output_interval="00-00-01_00:00:00" >
-
-    <stream name="mesh"/>
-    <var_array name="activeTracersAtSurface"/>
-    <var name="xtime"/>
-    <var name="kineticEnergyAt100m"/>
-    <var name="relativeVorticityAt100m"/>
-</stream>
-
-<stream name="timeFiltersOutput"
-        type="output"
-        filename_template="ocn.timeFilters.\$Y-\$M-\$D_\$h.nc"
-        filename_interval="01-00-00_00:00:00"
-        reference_time="0000-01-01_00:00:00"
-        clobber_mode="truncate"
-        packages="timeFiltersAMPKG"
-        output_interval="00-00-01_00:00:00" >
-
-    <var name="xtime"/>
-    <var name="normalVelocityLowPass"/>
-    <var name="normalVelocityHighPass"/>
-    <var name="normalVelocityFilterTest"/>
-</stream>
-
-<stream name="timeFiltersRestart"
-        type="input;output"
-        filename_template="restarts/timeFiltersRestart.\$Y-\$M-\$D_\$h.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="timeFiltersAMPKG"
-        input_interval="initial_only"
-        output_interval="stream:restart:output_interval" >
-
-    <var name="xtime"/>
-    <var name="normalVelocityLowPass"/>
-    <var name="normalVelocityHighPass"/>
-    <var name="normalVelocityFilterTest"/>
-</stream>
-
-<stream name="eliassenPalmOutput"
-        type="output"
-        filename_template="ocn.eliassenPalm.\$Y-\$M-\$D.nc"
-        filename_interval="01-00-00_00:00:00"
-        reference_time="0000-01-01_00:00:00"
-        clobber_mode="truncate"
-        packages="eliassenPalmAMPKG"
-        output_interval="00-00-01_00:00:00" >
-
-    <var name="xtime"/>
-    <var name="potentialDensityMidRef"/>
-    <var name="potentialDensityTopRef"/>
-    <var name="nSamplesEA"/>
-    <var name="buoyancyMaskEA"/>
-    <var name="sigmaEA"/>
-    <var name="heightMidBuoyCoorEA"/>
-    <var name="heightMidBuoyCoorSqEA"/>
-    <var name="montgPotBuoyCoorEA"/>
-    <var name="montgPotGradZonalEA"/>
-    <var name="montgPotGradMeridEA"/>
-    <var name="heightMGradZonalEA"/>
-    <var name="heightMGradMeridEA"/>
-    <var name="uusigmaEA"/>
-    <var name="vvsigmaEA"/>
-    <var name="uvsigmaEA"/>
-    <var name="uvarpisigmaEA"/>
-    <var name="vvarpisigmaEA"/>
-    <var name="uTWA"/>
-    <var name="vTWA"/>
-    <var name="varpiTWA"/>
-    <var name="EPFT"/>
-    <var name="divEPFT"/>
-    <var name="ErtelPVFlux"/>
-    <var name="ErtelPVTendency"/>
-    <var name="ErtelPV"/>
-</stream>
-
-<stream name="eliassenPalmRestart"
-        type="input;output"
-        filename_template="restarts/eliassenPalm_restart.\$Y-\$M-\$D.nc"
-        filename_interval="01-00-00_00:00:00"
-        clobber_mode="truncate"
-        packages="eliassenPalmAMPKG"
-        input_interval="initial_only"
-        output_interval="stream:restart:output_interval" >
-
-    <var name="xtime"/>
-    <var name="nSamplesEA"/>
-    <var name="buoyancyMaskEA"/>
-    <var name="sigmaEA"/>
-    <var name="heightMidBuoyCoorEA"/>
-    <var name="heightMidBuoyCoorSqEA"/>
-    <var name="montgPotBuoyCoorEA"/>
-    <var name="montgPotGradZonalEA"/>
-    <var name="montgPotGradMeridEA"/>
-    <var name="heightMGradZonalEA"/>
-    <var name="heightMGradMeridEA"/>
-    <var name="usigmaEA"/>
-    <var name="vsigmaEA"/>
-    <var name="varpisigmaEA"/>
-    <var name="uusigmaEA"/>
-    <var name="vvsigmaEA"/>
-    <var name="uvsigmaEA"/>
-    <var name="uvarpisigmaEA"/>
-    <var name="vvarpisigmaEA"/>
-</stream>
-
-<stream name="mixedLayerDepthsOutput"
-        type="output"
-        filename_template="ocn.mixedLayerDepths.\$Y-\$M-\$D.nc"
-        filename_interval="01-00-00_00:00:00"
-        reference_time="0000-01-01_00:00:00"
-        clobber_mode="truncate"
-        packages="mixedLayerDepthsAMPKG"
-        output_interval="00-00-01_00:00:00" >
-
-    <stream name="mesh"/>
-    <var name="xtime"/>
-    <var name="tThreshMLD"/>
-    <var name="dThreshMLD"/>
-    <var name="tGradMLD"/>
-    <var name="dGradMLD"/>
-</stream>
-
-<!--
-All streams below this line are auxiliary streams. They are provided as
-groupings of fields that one might be interested in. You can either enable the
-stream to write a file for the fileds, or add the stream to another stream that
-will already be written.  
--->
-
-<stream name="averages"
-		type="none"
-		filename_template="ocn.average_variables.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-		filename_interval="01-00-00_00:00:00"
-		reference_time="0000-01-01_00:00:00"
-		clobber_mode="truncate"
->
-
-	<stream name="mesh"/>
-	<var_array name="avgTracersSurfaceValue"/>
-	<var_array name="avgSurfaceVelocity"/>
-	<var_array name="avgSSHGradient"/>
-	<var name="nAverage"/>
-	<var name="avgSSH"/>
-	<var name="avgNormalVelocity"/>
-	<var name="avgVelocityZonal"/>
-	<var name="avgVelocityMeridional"/>
-	<var name="avgVertVelocityTop"/>
-	<var name="avgNormalTransportVelocity"/>
-	<var name="avgTransportVelocityZonal"/>
-	<var name="avgTransportVelocityMeridional"/>
-	<var name="avgVertTransportVelocityTop"/>
-	<var name="varSSH"/>
-	<var name="varNormalVelocity"/>
-	<var name="varVelocityZonal"/>
-	<var name="varVelocityMeridional"/>
-
-</stream>
-
-<stream name="forcing"
-		type="none"
-		filename_template="ocn.forcing_variables.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-		filename_interval="01-00-00_00:00:00"
-		reference_time="0000-01-01_00:00:00"
-		clobber_mode="truncate"
->
-
-	<stream name="mesh"/>
-	<var_struct name="tracersSurfaceFlux"/>
-	<var_array name="tracersSurfaceValue"/>
-	<var_array name="surfaceVelocity"/>
-	<var_array name="SSHGradient"/>
-	<var_array name="vertNonLocalFlux"/>
-	<var name="surfaceStressMagnitude"/>
-	<var name="surfaceStress"/>
-	<var name="surfaceThicknessFlux"/>
-	<var name="seaIceEnergy"/>
-	<var name="penetrativeTemperatureFlux"/>
-	<var name="fractionAbsorbed"/>
-	<var name="windStressZonal"/>
-	<var name="windStressMeridional"/>
-	<var name="latentHeatFlux"/>
-	<var name="sensibleHeatFlux"/>
-	<var name="longWaveHeatFluxUp"/>
-	<var name="longWaveHeatFluxDown"/>
-	<var name="seaIceHeatFlux"/>
-	<var name="shortWaveHeatFlux"/>
-	<var name="evaporationFlux"/>
-	<var name="seaIceSalinityFlux"/>
-	<var name="seaIceFreshWaterFlux"/>
-	<var name="riverRunoffFlux"/>
-	<var name="iceRunoffFlux"/>
-	<var name="rainFlux"/>
-	<var name="snowFlux"/>
-	<var name="iceFraction"/>
-	<var name="nAccumulatedCoupled"/>
-	<var name="thermalExpansionCoeff"/>
-	<var name="salineContractionCoeff"/>
-
-</stream>
-
-</streams>
-
-EOF
-
-### Custom MPAS-CICE streams ###
-cat <<EOF > SourceMods/src.mpas-cice/streams.cice
-<streams>
-
-<immutable_stream name="mesh"
-                  type="none"
-                  filename_template="mesh_variables.nc"
-/>
-<immutable_stream name="input"
-                  type="input"
-                  filename_template="/lustre/atlas1/cli900/world-shared/cesm/inputdata/ice/mpas-cice/mpas120/cice120km.121116.nc"
-                  filename_interval="none"
-                  input_interval="initial_only"
-/>
-
-<!--
-The restart stream is actually controlled via the coupler.
-Changing output_interval here will not have any affect on
-the frequency restart files are written.
-
-Changing the output_interval could cause loss of data.
-
-The output_interval is set to 1 second to ensure each restart frame has a
-unique file.
--->
-<immutable_stream name="restart"
-				 type="input;output"
-				 filename_template="rst.ice.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-				 filename_interval="output_interval"
-				 reference_time="0000-01-01_00:00:00"
-				 clobber_mode="truncate"
-				 input_interval="initial_only"
-				 output_interval="00-01-00_00:00:01"/>
-
-<!--
-output is the main history output stream. You can add auxiliary streams to
-this stream to include more fields.
--->
-
-<stream name="output"
-		type="output"
-		filename_template="hist.ice.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
-		filename_interval="00-01-00_00:00:00"
-		reference_time="0000-01-01_00:00:00"
-		clobber_mode="truncate"
-		output_interval="00-01-00_00:00:00">
-
-	<stream name="mesh"/>
-    <var name="fVertex"/>
-    <var name="POPindxi"/>
-    <var name="POPindxj"/>
-    <var name="uVelocity"/>
-    <var name="vVelocity"/>
-    <var name="stressDivergenceU"/>
-    <var name="stressDivergenceV"/>
-    <var name="uAirVelocity"/>
-    <var name="vAirVelocity"/>
-    <var name="uOceanVelocity"/>
-    <var name="vOceanVelocity"/>
-    <var name="uOceanVelocityVertex"/>
-    <var name="vOceanVelocityVertex"/>
-    <var name="oceanStressU"/>
-    <var name="oceanStressV"/>
-    <var name="oceanStressCoeff"/>
-    <var name="surfaceTiltForceU"/>
-    <var name="surfaceTiltForceV"/>
-    <var name="iceAreaCategory"/>
-    <var name="iceVolumeCategory"/>
-    <var name="snowVolumeCategory"/>
-    <var name="iceAreaCell"/>
-    <var name="iceVolumeCell"/>
-    <var name="snowVolumeCell"/>
-    <var name="surfaceTemperature"/>
-    <var name="iceAreaCategoryPlot"/>
-    <var name="iceVolumeCategoryPlot"/>
-    <var name="snowVolumeCategoryPlot"/>
-    <var name="surfaceTemperaturePlot"/>
-    <var name="iceThickness"/>
-    <var name="snowThickness"/>
-    <var name="iceAreaVertex"/>
-    <var name="totalMassCell"/>
-    <var name="totalMassVertex"/>
-    <var name="airStressCellU"/>
-    <var name="airStressCellV"/>
-    <var name="airStressVertexU"/>
-    <var name="airStressVertexV"/>
-    <var name="airTemperature"/>
-    <var name="airPotentialTemperature"/>
-    <var name="uAirVelocityPOP"/>
-    <var name="vAirVelocityPOP"/>
-    <var name="windSpeed"/>
-    <var name="uAirStress"/>
-    <var name="vAirStress"/>
-    <var name="strain11var"/>
-    <var name="airDensity"/>
-    <var name="airSpecificHumidity"/>
-    <var name="shortwaveDown"/>
-    <var name="longwaveDown"/>
-    <var name="cloudFraction"/>
-    <var name="rainfallRate"/>
-    <var name="snowfallRate"/>
-    <var name="surfaceIceMelt"/>
-    <var name="basalIceMelt"/>
-    <var name="lateralIceMelt"/>
-    <var name="snowMelt"/>
-    <var name="sensibleTransferCoefficient"/>
-    <var name="latentTransferCoefficient"/>
-    <var name="uPOPAlongGridVector"/>
-    <var name="vPOPAlongGridVector"/>
-    <var name="iceAreaCategoryMin"/>
-    <var name="iceAreaCategoryMax"/>
-    <var name="iceVolumeCategoryMin"/>
-    <var name="iceVolumeCategoryMax"/>
-    <var name="snowVolumeCategoryMin"/>
-    <var name="snowVolumeCategoryMax"/>
-    <var name="surfaceTemperatureMin"/>
-    <var name="surfaceTemperatureMax"/>
-    <var name="iceThicknessCategoryMin"/>
-    <var name="iceThicknessCategoryMax"/>
-    <var name="snowThicknessCategoryMin"/>
-    <var name="snowThicknessCategoryMax"/>
-    <var name="snowThicknessCategoryLocMax"/>
-    <var name="globalIceArea"/>
-    <var name="globalIceExtent"/>
-    <var name="globalIceVolume"/>
-    <var name="globalIceThickness"/>
-    <var name="globalSnowVolume"/>
-    <var name="globalSnowThickness"/>
-    <var name="basisIntegralsU"/>
-    <var name="basisIntegralsV"/>
-    <var name="basisIntegralsMetric"/>
-    <var name="basisGradientU"/>
-    <var name="basisGradientV"/>
-
-</stream>
-
-<!--
-Streams between this line and the auxiliary stream line below are analysis member streams.
-They can be used to perform online analysis of the simulation and control the output of
-the analysis data.
--->
-<!--
-All streams below this line are auxiliary streams. They are provided as
-groupings of fields that one might be interested in. You can either enable the
-stream to write a file for the fileds, or add the stream to another stream that
-will already be written.  
--->
-</streams>
-
-EOF
-
-### Make directory for some mpas-o output ###
-mkdir -p ../run/analysis_members
-
 #============================================
 # BUILD CODE
 #============================================
@@ -1681,6 +1095,72 @@ endif
 #============================================
 
 #NOTE:  This section is for making specific changes to the run options (ie env_run.xml).
+
+### Patch MPAS-O and MPAS_CICE streams for monthly output ###
+echo
+echo 'Attempting to patch MPAS-O and MPAS_CICE streams for monthly output' 
+pushd ../run
+
+patch << EOF
+--- streams.ocean	2015-12-18 19:07:47.000000000 -0500
++++ streams.ocean.patched	2015-12-18 19:07:47.000000000 -0500
+@@ -37,7 +37,7 @@
+ <stream name="output"
+ 		type="output"
+ 		filename_template="hist.ocn.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
+-		filename_interval="01-00-00_00:00:00"
++		filename_interval="00-01-00_00:00:00"
+ 		reference_time="0000-01-01_00:00:00"
+ 		clobber_mode="truncate"
+ 		output_interval="00-01-00_00:00:00">
+@@ -89,10 +89,10 @@
+ <stream name="globalStatsOutput"
+         type="output"
+         filename_template="ocn.globalStats.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
+-        filename_interval="01-00-00_00:00:00"
++        filename_interval="00-01-00_00:00:00"
+         clobber_mode="truncate"
+         packages="globalStatsAMPKG"
+-        output_interval="0000_01:00:00">
++        output_interval="00-01-00_00:00:00">
+ 
+     <var_array name="minGlobalStats"/>
+     <var_array name="maxGlobalStats"/>
+@@ -107,10 +107,10 @@
+ <stream name="surfaceAreaWeightedAveragesOutput"
+         type="output"
+         filename_template="ocn.surfaceAreaWeightedAverages.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
+-        filename_interval="01-00-00_00:00:00"
++        filename_interval="00-01-00_00:00:00"
+         clobber_mode="truncate"
+         packages="surfaceAreaWeightedAveragesAMPKG"
+-        output_interval="00-00-05_00:00:00">
++        output_interval="00-01-00_00:00:00">
+ 
+     <var_array name="minValueWithinOceanRegion"/>
+     <var_array name="maxValueWithinOceanRegion"/>
+EOF
+cp streams.ocean ../case_scripts/SourceMods/src.mpas-o/
+
+patch << EOF
+--- streams.cice	2015-12-18 19:26:32.000000000 -0500
++++ streams.cice.patched	2015-12-18 19:26:32.000000000 -0500
+@@ -38,7 +38,7 @@
+ <stream name="output"
+ 		type="output"
+ 		filename_template="hist.ice.\$Y-\$M-\$D_\$h.\$m.\$s.nc"
+-		filename_interval="01-00-00_00:00:00"
++		filename_interval="00-01-00_00:00:00"
+ 		reference_time="0000-01-01_00:00:00"
+ 		clobber_mode="truncate"
+ 		output_interval="00-01-00_00:00:00">
+EOF
+cp streams.cice ../case_scripts/SourceMods/src.mpas-cice/
+
+popd
+
+### Make directory for some mpas-o output ###
+mkdir -p ../run/analysis_members
 
 #=================================================
 # SUBMIT THE SIMULATION TO THE RUN QUEUE
