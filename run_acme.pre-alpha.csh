@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.28
+set script_ver = 1.0.29
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -788,6 +788,8 @@ endif
 #  exit 270
 #endif
 
+### The following command extracts and stores the inputdata_dir in case it is needed for user edits to the namelist later.
+set inputdata_dir = `xmlquery DIN_LOC_ROOT -value`
 
 #=============================================
 # CREATE NAMELIST MODIFICATION FILES (USER_NL)
@@ -1237,6 +1239,7 @@ echo ''
 # 1.0.26   2015-12-16    Can now handle Cori (NERSC), plus improved error messages.  (PJC)
 # 1.0.27   2015-12-16    Partial implementation for Eos (OLCF), plus cosmetic changes.  (PJC)
 # 1.0.28   2015-12-17    Fixed Cori batch options.  Improved an error message.  (PJC)
+# 1.0.29   2015-12-21    Added line to extract inputdata_dir from XML files, so it is available if needed in user_nl files (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
 
