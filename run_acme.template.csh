@@ -794,7 +794,7 @@ endif
 #endif
 
 ### The following command extracts and stores the inputdata_dir in case it is needed for user edits to the namelist later.
-set inputdata_dir = `xmlquery DIN_LOC_ROOT -value`
+set inputdata_dir = `./xmlquery DIN_LOC_ROOT -value`
 
 #=============================================
 # CREATE NAMELIST MODIFICATION FILES (USER_NL)
