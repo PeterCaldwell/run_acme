@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.29
+set script_ver = 1.0.30
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -576,12 +576,17 @@ if ( `lowercase $processor_config` == '1' ) then
   # NOTE: xmlchange won't work with shell variables for the id, so we have to write it out in full.
   set ntasks = 1
   set nthrds = 1
-  foreach ntasks_name (  NTASKS_ATM  NTASKS_LND  NTASKS_ICE  NTASKS_OCN  NTASKS_CPL  NTASKS_GLC  NTASKS_ROF  NTASKS_WAV )
+  set sequential_or_concurrent = 'sequential'
+  foreach ntasks_name ( NTASKS_ATM  NTASKS_LND  NTASKS_ICE  NTASKS_OCN  NTASKS_CPL  NTASKS_GLC  NTASKS_ROF  NTASKS_WAV )
     ./xmlchange -file env_mach_pes.xml -id $ntasks_name  -val $ntasks
   end
 
-  foreach nthrds_name (  NTHRDS_ATM  NTHRDS_LND  NTHRDS_ICE  NTHRDS_OCN  NTHRDS_CPL  NTHRDS_GLC  NTHRDS_ROF  NTHRDS_WAV )
+  foreach nthrds_name ( NTHRDS_ATM  NTHRDS_LND  NTHRDS_ICE  NTHRDS_OCN  NTHRDS_CPL  NTHRDS_GLC  NTHRDS_ROF  NTHRDS_WAV )
     ./xmlchange -file env_mach_pes.xml -id $nthrds_name  -val $nthrds
+  end
+
+  foreach layout_name ( NINST_ATM_LAYOUT NINST_LND_LAYOUT NINST_ICE_LAYOUT NINST_OCN_LAYOUT NINST_GLC_LAYOUT NINST_ROF_LAYOUT NINST_WAV_LAYOUT )
+    ./xmlchange -file env_mach_pes.xml -id $layout_name  -val $sequential_or_concurrent
   end
 
 else if ( `lowercase $processor_config` == 'custom' ) then
@@ -933,39 +938,39 @@ endif
 # NOTE: This also modifies the short-term and long-term archiving scripts.
 # NOTE: We want the batch job log to go into a sub-directory of case_scripts (to avoid it getting clogged up)
 
-mkdir -p run.output      ### Make directory that stdout and stderr will go into.
+mkdir -p batch_output      ### Make directory that stdout and stderr will go into.
  
 if ( $machine == hopper || $machine == edison ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                             $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                             $longterm_archive_script
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else if ( $machine == cori ) then
     sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=${job_name}"                ${case_name}.run
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                  ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' ${case_name}.run
     	      
     sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=st+${job_name}"                      $shortterm_archive_script
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                           $shortterm_archive_script
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $shortterm_archive_script
     sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=lt+${job_name}"                      $longterm_archive_script
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                           $longterm_archive_script
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=run.output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $longterm_archive_script
 
 else if ( $machine == titan || $machine == eos ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                             $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                             $longterm_archive_script
-    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o run.output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
+    sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else
     echo 'run_acme WARNING: This script does not have batch directives for $machine='$machine
@@ -1153,9 +1158,10 @@ echo ''
 # 1.0.26   2015-12-16    Can now handle Cori (NERSC), plus improved error messages.  (PJC)
 # 1.0.27   2015-12-16    Partial implementation for Eos (OLCF), plus cosmetic changes.  (PJC)
 # 1.0.28   2015-12-17    Fixed Cori batch options.  Improved an error message.  (PJC)
-# 1.0.29   2015-12-21    Added line to extract inputdata_dir from XML files, so it is available if needed in user_nl files (PJC)
-
-# NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell
+# 1.0.29   2015-12-21    Added line to extract inputdata_dir from XML files, so it is available if needed in user_nl files. (PJC)
+# 1.0.30   2015-12-23    Changed run.output dir to batch_output --purpose is clearer, and better for filename completion. (PJC)
+#                        Added option to set PE configuration to sequential or concurrent for option '1'. (PJC)
+# NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
 ### ---------- Desired features still to be implemented ------------
 # +) fetch_code = update   (pull in latest updates to branch)    (PJC)
