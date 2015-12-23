@@ -1159,7 +1159,7 @@ echo ''
 # 1.0.27   2015-12-16    Partial implementation for Eos (OLCF), plus cosmetic changes.  (PJC)
 # 1.0.28   2015-12-17    Fixed Cori batch options.  Improved an error message.  (PJC)
 # 1.0.29   2015-12-21    Added line to extract inputdata_dir from XML files, so it is available if needed in user_nl files. (PJC)
-# 1.0.30   2015-12-23    Changed run.output dir to batch_output --purpose is clearer, and better for filename completion. (PJC)
+# 1.0.30   2015-12-23    Changed run.output dir to batch_output -- purpose is clearer, and better for filename completion. (PJC)
 #                        Added option to set PE configuration to sequential or concurrent for option '1'. (PJC)
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
