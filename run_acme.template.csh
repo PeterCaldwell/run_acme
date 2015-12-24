@@ -189,6 +189,7 @@ set script_ver = 1.0.30
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
+echo ''
 
 #===========================================
 # DEFINE THINGS NEEDED LATER:
@@ -236,13 +237,11 @@ endif
 ### NOTE: you must be setup with access to the ACME repository before you can clone the repository. For access, see
 ###       https://acme-climate.atlassian.net/wiki/display/Docs/Installing+the+ACME+Model
 
-
 if ( `lowercase $fetch_code` == true ) then
   echo 'run_acme: Downloading code from the ACME git repository.'
   if ( -d $code_root_dir/$tag_name ) then 
     if ( $seconds_before_delete_source_dir >= 0 ) then
       set num_seconds_until_delete = $seconds_before_delete_source_dir
-      echo ''
       echo 'run_acme: Removing old code directory '$code_root_dir/$tag_name' in '$num_seconds_until_delete' seconds.'
       echo 'To abort, press ctrl-C'
       while ( ${num_seconds_until_delete} > 0 )
@@ -472,8 +471,8 @@ else if ( -f $code_root_dir/$tag_name/scripts/create_newcase ) then    # pre-CIM
     cd $code_root_dir/$tag_name/scripts/
 else                                                                   # No version of create_newcase found
   echo 'run_acme ERROR: create_newcase script cannot be found in '
-  echo '               '$code_root_dir/$tag_name/cime/scripts
-  echo '               or '$code_root_dir/$tag_name/scripts
+  echo '                '$code_root_dir/$tag_name/cime/scripts
+  echo '                or '$code_root_dir/$tag_name/scripts
   echo '                This is most likely because fetch_code should be true.'
   echo '                At the moment, $fetch_code = '$fetch_code
   exit 45  
@@ -735,6 +734,7 @@ endif
 
 #NOTE:  This section is for making specific component configuration selections.
 #NOTE:  CAM_NAMELIST_OPTS should NOT be used.  Instead, use the user_nl section after case_scripts.build
+#NOTE:  The inputdata directory is best set in the section for it later in this script.
 
 #./xmlchange -file env_build.xml -id CAM_CONFIG_OPTS -val "-phys cam5 -chem linoz_mam3"
 
