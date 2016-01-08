@@ -16,15 +16,15 @@ endif
 ### THINGS USERS USUALLY CHANGE (SEE END OF SECTION FOR GUIDANCE)                 
 ###===================================================================
 
-### BASIC INFO ABOUT RUN
-set run_name   = pre-alpha-default   # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
-set job_name   = $run_name          # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850CN          # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
-set resolution = ne30_m120          # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
-set machine    = titan              # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
+### BASIC INFO ABOUT RUN (1)
+set run_name   = pre-alpha-default      # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
+set job_name   = $run_name              # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
+set compset    = A_B1850CN              # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
+set resolution = ne30_m120              # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
+set machine    = titan                  # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
 setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
 
-### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING
+### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
 set stop_units           = ndays        # !!!!!! CHANGE BEFORE ARCHIVING to ndays   !!!!!!!
 set stop_num             = 5            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
 set restart_units        = $stop_units  # !!!!!! CHANGE BEFORE ARCHIVING to $stop_units  !!!!!!!
@@ -33,24 +33,24 @@ set num_resubmits        = 0            # !!!!!! CHANGE BEFORE ARCHIVING to 0   
 set do_short_term_archiving = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
 set do_long_term_archiving  = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
 
-### SIMULATION OPTIONS
+### SIMULATION OPTIONS (10)
 set atm_output_freq              =  1   # !!!!!! CHANGE BEFORE ARCHIVING to 1    !!!!!!!
 set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40   !!!!!!!
 
-### SOURCE CODE OPTIONS
+### SOURCE CODE OPTIONS (2)
 set fetch_code = true                   # !!!!! CHANGE BEFORE ARCHIVING to true   !!!!!!!
 set acme_tag   = master                 # !!!!! CHANGE BEFORE ARCHIVING to master !!!!!!!
 set tag_name   = master                 # !!!!! CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
 
-### BUILD OPTIONS
+### BUILD OPTIONS (3)
 set debug_compile          = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
 set old_executable         = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
 
-### SUBMIT OPTIONS
+### SUBMIT OPTIONS (5)
 set submit_run             = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 set debug_queue            = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
 
-### AUTOMATIC DELETION OPTIONS
+### AUTOMATIC DELETION OPTIONS (4)
 set seconds_before_delete_source_dir = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
 set seconds_before_delete_case_dir   = 10   # !!!!!!! CHANGE BEFORE ARCHIVING to 10 !!!!!!
 set seconds_before_delete_bld_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
@@ -58,13 +58,13 @@ set seconds_before_delete_run_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to
 
 ### !!!! OPTIONS BELOW HERE NORMALLY SHOULDN'T BE CHANGED !!!!
 ### ----------------------------------------------------------
-### PROCESSOR CONFIGURATION
+### PROCESSOR CONFIGURATION (6)
 set processor_config = custom   # To run ACME pre-alpha on Titan, set this to use the 'custom' configuration. # !!!!!!! CHANGE BEFORE ARCHIVING to M (or to 'custom' for pre-alpha version) !!!!!!
 
-### STARTUP TYPE
+### STARTUP TYPE (7)
 set model_start_type = initial       # options: initial, continue, branch.  # !!!!!!! CHANGE BEFORE ARCHIVING to initial   !!!!!!
 
-### DIRECTORIES
+### DIRECTORIES (8)
 set code_root_dir  = ~/ACME_code/         # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!!
 set run_root_dir   = default              # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
 set short_term_archive_root_dir = default # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.30
+set script_ver = 1.0.31
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -253,8 +253,7 @@ if ( `lowercase $fetch_code` == true ) then
       rm -fr $code_root_dir/$tag_name
       echo 'run_acme: Deleted '$code_root_dir/$tag_name
     else
-      echo 'run_acme: ERROR: $code_root_dir/$tag_name exists, and $seconds_before_delete_source_dir<0, '
-      echo '          so dying instead of overwriting.'
+      echo 'run_acme: ERROR: Your branch tag already exists, so dying instead of overwriting.'
       echo '          You likely want to either set fetch_code=false, change $tag_name, or'
       echo '          change change seconds_before_delete_source_dir.'
       echo '          Note: $fetch_code = '$fetch_code
@@ -280,6 +279,23 @@ if ( `lowercase $fetch_code` == true ) then
     echo 'run_acme: Checking out branch ${acme_tag} = '${acme_tag}
     git checkout ${acme_tag}       
   endif
+
+  if ( $machine == 'titan' && -x ~/xxdiff/xxdiff ) then      ## For PJC.  Need to generalize.
+    echo ''
+    echo 'Run xxdiff to fix CESMSCRATCHROOT in config_machines.xml on Titan :'
+    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_machines.xml  ~/ACME_code/bug_fixes/"
+    echo 'Once the patches have been made, rerun this script with fetch_code=false'
+    exit 22
+  else if ( $machine == 'cori' && -x ~/xxdiff/xxdiff ) then
+    echo ''
+    echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
+    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
+    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
+    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
+    echo 'Once the patches have been made, rerun this script with fetch_code=false'
+    exit 23
+  endif
+
 endif
 
 #===========================================
@@ -290,6 +306,13 @@ set case_name = ${tag_name}.${compset}.${resolution}.${machine}.${run_name}
 
 echo ''
 echo 'run_acme: $case_name        = '$case_name
+
+set length_case_name = `echo $case_name | awk '{print length($0)}'`
+if ( $length_case_name > 79 ) then
+  echo 'run_acme ERROR: The ACME scripts do not allow case_name to be longer than 79 characters.'
+  echo '                $length_case_name = '$length_case_name
+  exit 25
+endif
 
 #Note: Most of the time we probably want to set $run_root_dir to $RUNDIR/.. as defined in 
 #cime/machines-acme/config_machines.xml. We manually specify it here because create_newcase 
@@ -729,12 +752,43 @@ EOF
 endif
 
 #============================================
+# SET MODEL INPUT DATA DIRECTORY  
+#============================================
+# NOTE: This section was moved from later in script, because sometimes it is needed for cesm_setup.
+
+# The model input data directory should default to the managed location for your system.
+# However, if this does not work properly, or if you want to use your own data, then 
+# that should be setup here (before case_scripts.build because it checks the necessary files exist)
+
+# NOTE: This code handles the case when the default location is wrong.   
+#       If you want to use your own files then this code will need to be modified.
+ 
+if ( $machine == 'cori' ) then
+  set input_data_dir = '/project/projectdirs/m411/ACME_inputdata'    # PJC-NERSC
+# set input_data_dir = '/project/projectdirs/ccsm1/inputdata'        # NERSC
+else if ( $machine == 'titan' || $machine == 'eos' ) then
+  set input_data_dir = '/lustre/atlas/proj-shared/cli112/pjcs/ACME_inputdata'    # PJC-OLCF
+endif
+if ( -d  $input_data_dir ) then
+  ./xmlchange -file env_run.xml -id DIN_LOC_ROOT -val $input_data_dir
+else
+  echo 'run_acme ERROR: User specified input data directory does NOT exist.'
+  echo '                $input_data_dir = '$input_data_dir
+  exit 270
+endif
+
+### The following command extracts and stores the inputdata_dir in case it is needed for user edits to the namelist later.
+set inputdata_dir = `./xmlquery DIN_LOC_ROOT -value`
+
+#============================================
 # COMPONENT CONFIGURATION OPTIONS
 #============================================
 
 #NOTE:  This section is for making specific component configuration selections.
+#NOTE:  The inputdata directory is best set in the section for it above.
+#NOTE:  Setting CAM_CONFIG_OPTS will REPLACE anything set by the build system.  
+#       To add on instead, add '-append' to the xmlchange command.
 #NOTE:  CAM_NAMELIST_OPTS should NOT be used.  Instead, use the user_nl section after case_scripts.build
-#NOTE:  The inputdata directory is best set in the section for it later in this script.
 
 #./xmlchange -file env_build.xml -id CAM_CONFIG_OPTS -val "-phys cam5 -chem linoz_mam3"
 
@@ -775,26 +829,9 @@ endif
 #./xmlchange -file  env_build.xml -id GMAKE_J -val 4
 
 #============================================
-# SET MODEL INPUT DATA DIRECTORY
+# SET MODEL INPUT DATA DIRECTORY  (Moved to before cesm_setup)
 #============================================
 
-# The model input data directory should default to the managed location for your system.
-# However, if this does not work properly, or if you want to use your own data, then 
-# that should be setup here (before case_scripts.build because it checks the necessary files exist)
-
-# NOTE: This code handles the case when the default location is wrong.   
-#       If you want to use your own files then this code will need to be modified.
- 
-#set input_data_dir = '/project/projectdirs/ccsm1/inputdata'    # Hopper
-#if ( -d  $input_data_dir ) then
-#  ./xmlchange -file env_run.xml -id DIN_LOC_ROOT -val $input_data_dir
-#else
-#  echo 'run_acme ERROR: User specified input data directory does NOT exist. $input_data_dir = '$input_data_dir
-#  exit 270
-#endif
-
-### The following command extracts and stores the inputdata_dir in case it is needed for user edits to the namelist later.
-set inputdata_dir = `./xmlquery DIN_LOC_ROOT -value`
 
 #=============================================
 # CREATE NAMELIST MODIFICATION FILES (USER_NL)
@@ -803,7 +840,8 @@ set inputdata_dir = `./xmlquery DIN_LOC_ROOT -value`
 # Append desired changes to the default namelists generated by the build process.
 #
 # NOTE: It doesn't matter which namelist an option is in for any given component.  The system will sort it out.
-# NOTE: The user_nl files need to be set before the build, because case_scripts.build also checks whether input files exist.
+# NOTE: inputdata directory ($inputdata_dir) is set above (before cesm_setup).
+# NOTE: The user_nl files need to be set before the build, because case_scripts.build checks whether input files exist.
 # NOTE: $atm_output_freq and $records_per_atm_output_file are so commonly used, that they are set in the options at the top of this script.
 cat <<EOF >> user_nl_cam
  nhtfrq = $atm_output_freq
@@ -902,8 +940,8 @@ echo ''
 # Edit the default queue and batch job lengths. 
 
 #HINT: To change queue after run submitted, the following works on most machines:
-#qalter -lwalltime=00:29:00 <run_descriptor>
-#qalter -W queue=debug <run_descriptor>
+#      qalter -lwalltime=00:29:00 <run_descriptor>
+#      qalter -W queue=debug <run_descriptor>
 
 #NOTE: we are currently not modifying the archiving scripts to run in debug queue when $debug_queue=true
 #      under the assumption that if you're debugging you shouldn't be archiving.
@@ -939,7 +977,7 @@ else #if NOT to be run in debug_queue
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
   else if ( $machine == cori ) then
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=regular" ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=00:30:00"     ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=02:00:00"     ${case_name}.run
   else if ( $machine == titan || $machine == eos  ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                          ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
@@ -971,16 +1009,16 @@ if ( $machine == hopper || $machine == edison ) then
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else if ( $machine == cori ) then
-    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=${job_name}"                ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                  ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=${job_name}"                 ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                   ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--output"/c"#SBATCH  --output=batch_output/"${case_name}'.o%j' ${case_name}.run
     	      
-    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=st+${job_name}"                      $shortterm_archive_script
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                           $shortterm_archive_script
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $shortterm_archive_script
-    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=lt+${job_name}"                      $longterm_archive_script
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                           $longterm_archive_script
-    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/${SLURM_JOB_NAME}.o${SLURM_JOB_ID}' $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=ST+${job_name}"                  $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                       $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/ST+'${case_name}'.o%j'  $shortterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=LT+${job_name}"                  $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                       $longterm_archive_script
+    sed -i /"#SBATCH${cime_space}--output"/c'#SBATCH  --output=batch_output/LT+'${case_name}'.o%j'  $longterm_archive_script
 
 else if ( $machine == titan || $machine == eos ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
@@ -1247,12 +1285,22 @@ echo ''
 # 1.0.29   2015-12-21    Added line to extract inputdata_dir from XML files, so it is available if needed in user_nl files. (PJC)
 # 1.0.30   2015-12-23    Changed run.output dir to batch_output -- purpose is clearer, and better for filename completion. (PJC)
 #                        Added option to set PE configuration to sequential or concurrent for option '1'. (PJC)
+# 1.0.31   2016-01-07    Moved up the location where the input_data_dir is set, so it is availble to cesm_setup.    (PJC)
+#                        Checks case_name is 79 characters, or less, which is a requirement of the ACME scripts.
+#                        Improved options for SLURM machines.  
+#                        Added numbers for the ordering of options at top of file (in preperation for reordering). 
+#                        Added xxdiff calls to fix known bugs in master> (need to generalize for other people)
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
 ### ---------- Desired features still to be implemented ------------
 # +) fetch_code = update   (pull in latest updates to branch)    (PJC)
 # +) A way to run the testsuite.? (PJC)
 # +) Reorder options at top to match workflow. (PJC)
+# +) make the handling of lowercase consistent.  $machine may need to be special. (PJC)
+# +) generalize xxdiff commands (for fixing known bugs) to work for other people  (PJC)
+# +) Add a 'default' option, for which REST_OPTION='$STOP_OPTION' and REST_N='$STOP_N'.
+#    This is important if the user subsequently edits STOP_OPTION or STOP_N.      (PJC)
+
              
 ###Example sed commands
 #============================
