@@ -19,7 +19,7 @@ endif
 ### BASIC INFO ABOUT RUN (1)
 set run_name   = pre-alpha              # !!!!!! CHANGE BEFORE ARCHIVING to pre-alpha  !!!!!!!
 set job_name   = $run_name              # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850CN              # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
+set compset    = A_B1850                # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
 set resolution = ne30_m120              # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
 set machine    = titan                  # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
 setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.33
+set script_ver = 1.0.33p
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -859,6 +859,10 @@ cat <<EOF >> user_nl_cam
  mfilt  = $records_per_atm_output_file
 EOF
 
+cat <<EOF >> user_nl_clm
+ finidat = ''
+EOF
+
 ### NOTES ON COMMON NAMELIST OPTIONS ###
 
 ### ATMOSPHERE NAMELIST ###
@@ -869,6 +873,10 @@ EOF
 #MFILT : The number of time records in each netCDF output file from the atmosphere model.
 #    If mfilt is 0, then there will only be one time record per file.
 #NOTE:  nhtfrq and mfilt can be a comma-separated list of numbers, corresponding to the 'history tapes' defined in the namelist.
+
+### LAND NAMELIST ###
+
+#FINIDAT : Initial condition file for the land model.
 
 ### MPAS-O NAMELIST ###
 
@@ -1305,6 +1313,8 @@ echo ''
 #                        Cosmetic improvements.
 # 1.0.33   2016-01-08    Changed default tag to master_detached to improve clarity. (PJC)
 #                        Now sets up ACME git hooks when fetch_code=true. 
+# 1.0.33p  2016-01-08    Changed compset from A_B1850CN to A_B1850 (pre-acme script only).  (PJC)
+#                        Added finidat = '' to user_nl_clm, which allows A_B1850 to run.
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
