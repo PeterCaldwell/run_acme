@@ -34,7 +34,7 @@ set do_short_term_archiving = false     # !!!!!! CHANGE BEFORE ARCHIVING to fals
 set do_long_term_archiving  = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
 
 ### SIMULATION OPTIONS (10)
-set atm_output_freq              =  1   # !!!!!! CHANGE BEFORE ARCHIVING to 1    !!!!!!!
+set atm_output_freq              = -24  # !!!!!! CHANGE BEFORE ARCHIVING to -24  !!!!!!!
 set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40   !!!!!!!
 
 ### SOURCE CODE OPTIONS (2)
@@ -88,7 +88,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #    NOTE: it is assumed that you have access to the ACME git repository.  To get access, see:
 #    https://acme-climate.atlassian.net/wiki/display/Docs/Installing+the+ACME+Model
 #acme_tag: ACME tagname in github. Can be 'master', a git hash, a tag, or a branch name. Only used if fetch_code=True.     
-#    NOTE: If acme_tag=master, then this script will provide the latest master version, but detach from the head, 
+#    NOTE: If acme_tag=master or master_detached, then this script will provide the latest master version, but detach from the head, 
 #          to minimize the risk of a user pushing something to master.
 #tag_name: Short name for the ACME branch used. If fetch_code=True, this is a shorter replacement for acme_tag 
 #    (which could be a very long hash!). Otherwise, this is a short name for the branch used. You can
@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.32
+set script_ver = 1.0.33
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -209,8 +209,10 @@ alias uppercase "echo \!:1 | tr '[a-z]' '[A-Z]'"  #make function which uppercase
 set lower_case_host    = `echo "$HOST"    | tr '[A-Z]' '[a-z]'`
 set lower_case_machine = `echo "$machine" | tr '[A-Z]' '[a-z]'`
 if ! ( $lower_case_host =~ '*'$lower_case_machine'*' ) then
-  echo 'run_acme ERROR: You requested to run on $machine='$machine' but $HOST returns '$HOST
-  echo '                    If you think $machine is set correctly, please edit this script to allow this behavior.'
+  echo 'run_acme ERROR: You specified a machine that appears to be different from the machine being used.'
+  echo '                You probably forgot to change the host (and project) in this script.'
+  echo '                If you think $machine is set correctly, please edit this script to allow this behavior.'
+  echo '                NOTE: $machine = '$machine'  but $HOST = '$HOST
   echo ''
   exit 10
 endif
@@ -268,9 +270,14 @@ if ( `lowercase $fetch_code` == true ) then
   cd $code_root_dir
   git clone git@github.com:ACME-Climate/ACME.git $tag_name     # This will put repository, with all code, in directory $tag_name 
   cd $tag_name
+  ## Setup git hooks
+  rm -rf .git/hooks
+  git clone git@github.com:ACME-Climate/ACME-Hooks.git .git/hooks
+  git config commit.template ${PWD}/.git/hooks/commit.template
+  ## Bring in MPAS ocean/ice repo
   git submodule update --init
 
-  if ( `lowercase $acme_tag` == master) then
+  if ( `lowercase $acme_tag` == master || `lowercase $acme_tag` == master_detached ) then
     echo ''
     echo 'run_acme: Detaching from the master branch to avoid accidental changes to master by user.'
     git checkout --detach
@@ -1210,6 +1217,9 @@ echo ''
 #                        Added xxdiff calls to fix known bugs in master> (need to generalize for other people)
 # 1.0.32   2016-01-07    Converted inputdata_dir to input_data_dir for consistency.      (PJC)
 #                        Cosmetic improvements.
+# 1.0.33   2016-01-08    Changed default tag to master_detached to improve clarity. (PJC)
+#                        Now sets up ACME git hooks when fetch_code=true. 
+
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
 ### ---------- Desired features still to be implemented ------------
