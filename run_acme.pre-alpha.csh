@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.33p
+set script_ver = 1.0.34
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -773,19 +773,20 @@ endif
 # NOTE: For information on the ACME input data repository, see:
 #       https://acme-climate.atlassian.net/wiki/display/WORKFLOW/ACME+Input+Data+Repository
 
-if ( $machine == 'cori' ) then
-  set input_data_dir = '/project/projectdirs/m411/ACME_inputdata'    # PJC-NERSC
-# set input_data_dir = '/project/projectdirs/ccsm1/inputdata'        # NERSC
-else if ( $machine == 'titan' || $machine == 'eos' ) then
-  set input_data_dir = '/lustre/atlas/proj-shared/cli112/pjcs/ACME_inputdata'    # PJC-OLCF
-endif
-if ( -d  $input_data_dir ) then
-  ./xmlchange -file env_run.xml -id DIN_LOC_ROOT -val $input_data_dir
-else
-  echo 'run_acme ERROR: User specified input data directory does NOT exist.'
-  echo '                $input_data_dir = '$input_data_dir
-  exit 270
-endif
+#set input_data_dir = 'input_data_dir_NOT_SET'
+#if ( $machine == 'cori' ) then
+#  set input_data_dir = '/project/projectdirs/m411/ACME_inputdata'    # PJC-NERSC
+## set input_data_dir = '/project/projectdirs/ccsm1/inputdata'        # NERSC
+#else if ( $machine == 'titan' || $machine == 'eos' ) then
+#  set input_data_dir = '/lustre/atlas/proj-shared/cli112/pjcs/ACME_inputdata'    # PJC-OLCF
+#endif
+#if ( -d  $input_data_dir ) then
+#  ./xmlchange -file env_run.xml -id DIN_LOC_ROOT -val $input_data_dir
+#else
+#  echo 'run_acme ERROR: User specified input data directory does NOT exist.'
+#  echo '                $input_data_dir = '$input_data_dir
+#  exit 270
+#endif
 
 ### The following command extracts and stores the input_data_dir in case it is needed for user edits to the namelist later.
 ### NOTE: The following line may be necessary if the $input_data_dir is not set above, and hence defaults to the ACME default.
@@ -1315,6 +1316,7 @@ echo ''
 #                        Now sets up ACME git hooks when fetch_code=true. 
 # 1.0.33p  2016-01-08    Changed compset from A_B1850CN to A_B1850 (pre-acme script only).  (PJC)
 #                        Added finidat = '' to user_nl_clm, which allows A_B1850 to run.
+# 1.0.34   2016-01-12    Commented out the input_data_dir user configuration, so it defaults to the ACME settings.   (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
@@ -1326,6 +1328,7 @@ echo ''
 # +) generalize xxdiff commands (for fixing known bugs) to work for other people  (PJC)
 # +) Add a 'default' option, for which REST_OPTION='$STOP_OPTION' and REST_N='$STOP_N'.
 #    This is important if the user subsequently edits STOP_OPTION or STOP_N.      (PJC)
+# +) Add defaults for Edison. (PJC)
              
 ###Example sed commands
 #============================
