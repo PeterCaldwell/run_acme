@@ -185,7 +185,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.34
+set script_ver = 1.0.35
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -896,8 +896,8 @@ else if ( `lowercase $old_executable` == true ) then
         echo 'run_acme: WARNING: Setting BUILD_COMPLETE = TRUE.  This is a little risky, but trusting the user.'
         ./xmlchange -file env_build.xml -id BUILD_COMPLETE -val TRUE
     else
-	echo 'run_acme ERROR: $old_executable='$old_executable' but '$case_build_dir/cesm.exe
-	echo '                does not exist or is not an executable'
+	echo 'run_acme ERROR: $old_executable='$old_executable' but no executable exists for this case.'
+        echo '                Expected to find executable = '$case_build_dir/cesm.exe
 	exit 297
     endif
 else
@@ -1223,6 +1223,7 @@ echo ''
 # 1.0.33p  2016-01-08    Changed compset from A_B1850CN to A_B1850 (pre-acme script only).  (PJC)
 #                        Added finidat = '' to user_nl_clm, which allows A_B1850 to run.
 # 1.0.34   2016-01-12    Commented out the input_data_dir user configuration, so it defaults to the ACME settings.   (PJC)
+# 1.0.35   2016-01-13    Improved an error message.   (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
