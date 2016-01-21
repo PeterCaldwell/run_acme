@@ -17,38 +17,21 @@ endif
 ###===================================================================
 
 ### BASIC INFO ABOUT RUN (1)
-set run_name   = pre-alpha              # !!!!!! CHANGE BEFORE ARCHIVING to pre-alpha  !!!!!!!
-set job_name   = $run_name              # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850                # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
-set resolution = ne30_m120              # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
-set machine    = titan                  # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
-setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
-
-### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
-set stop_units           = ndays        # !!!!!! CHANGE BEFORE ARCHIVING to ndays   !!!!!!!
-set stop_num             = 5            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
-set restart_units        = $stop_units  # !!!!!! CHANGE BEFORE ARCHIVING to $stop_units  !!!!!!!
-set restart_num          = $stop_num    # !!!!!! CHANGE BEFORE ARCHIVING to $stop_num    !!!!!!!
-set num_resubmits        = 0            # !!!!!! CHANGE BEFORE ARCHIVING to 0            !!!!!!!
-set do_short_term_archiving = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
-set do_long_term_archiving  = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
-
-### SIMULATION OPTIONS (10)
-set atm_output_freq              = -24  # !!!!!! CHANGE BEFORE ARCHIVING to -24  !!!!!!!
-set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40   !!!!!!!
+set run_name       = pre-alpha              # !!!!!! CHANGE BEFORE ARCHIVING to pre-alpha  !!!!!!!
+set job_name       = $run_name              # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
+set compset        = A_B1850                # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
+set resolution     = ne30_m120              # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
+set machine        = titan                  # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
+setenv project       cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
 
 ### SOURCE CODE OPTIONS (2)
-set fetch_code = true                   # !!!!! CHANGE BEFORE ARCHIVING to true   !!!!!!!
-set acme_tag   = master                 # !!!!! CHANGE BEFORE ARCHIVING to master !!!!!!!
-set tag_name   = master_detached        # !!!!! CHANGE BEFORE ARCHIVING to master_detached !!!!!!!
+set fetch_code     = true                   # !!!!! CHANGE BEFORE ARCHIVING to true   !!!!!!!
+set acme_tag       = master                 # !!!!! CHANGE BEFORE ARCHIVING to master !!!!!!!
+set tag_name       = master_detached        # !!!!! CHANGE BEFORE ARCHIVING to master_detached !!!!!!!
 
 ### BUILD OPTIONS (3)
-set debug_compile          = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
-set old_executable         = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
-
-### SUBMIT OPTIONS (5)
-set submit_run             = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
-set debug_queue            = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set debug_compile  = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
+set old_executable = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
 
 ### AUTOMATIC DELETION OPTIONS (4)
 set seconds_before_delete_source_dir = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
@@ -56,8 +39,10 @@ set seconds_before_delete_case_dir   = 10   # !!!!!!! CHANGE BEFORE ARCHIVING to
 set seconds_before_delete_bld_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
 set seconds_before_delete_run_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
 
-### !!!! OPTIONS BELOW HERE NORMALLY SHOULDN'T BE CHANGED !!!!
-### ----------------------------------------------------------
+### SUBMIT OPTIONS (5)
+set submit_run       = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set debug_queue      = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+
 ### PROCESSOR CONFIGURATION (6)
 set processor_config = custom   # To run ACME pre-alpha on Titan, set this to use the 'custom' configuration. # !!!!!!! CHANGE BEFORE ARCHIVING to M (or to 'custom' for pre-alpha version) !!!!!!
 
@@ -65,12 +50,26 @@ set processor_config = custom   # To run ACME pre-alpha on Titan, set this to us
 set model_start_type = initial       # options: initial, continue, branch.  # !!!!!!! CHANGE BEFORE ARCHIVING to initial   !!!!!!
 
 ### DIRECTORIES (8)
-set code_root_dir  = ~/ACME_code/         # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!!
-set run_root_dir   = default              # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
+set code_root_dir    = ~/ACME_code/         # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!!
+set run_root_dir     = default              # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
 set short_term_archive_root_dir = default # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
 
-#EXPLANATION FOR VARIABLES ABOVE:
-#==================================
+### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
+set stop_units       = ndays        # !!!!!! CHANGE BEFORE ARCHIVING to ndays   !!!!!!!
+set stop_num         = 5            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
+set restart_units    = $stop_units  # !!!!!! CHANGE BEFORE ARCHIVING to $stop_units  !!!!!!!
+set restart_num      = $stop_num    # !!!!!! CHANGE BEFORE ARCHIVING to $stop_num    !!!!!!!
+set num_resubmits    = 0            # !!!!!! CHANGE BEFORE ARCHIVING to 0            !!!!!!!
+set do_short_term_archiving      = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
+set do_long_term_archiving       = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
+
+### SIMULATION OPTIONS (10)
+set atm_output_freq              = -24  # !!!!!! CHANGE BEFORE ARCHIVING to -24  !!!!!!!
+set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40   !!!!!!!
+
+#==============================
+#EXPLANATION FOR OPTIONS ABOVE:
+#==============================
 #run_name: the run will be named: ${tag_name}.${compset}.${resolution}.${machine}.${run_name}.  run_name is to explain the 
 #    purpose of the run (e.g. run_name=ParallelPhysDyn) or just to ensure the run name is unique (e.g. run_name=test1).
 #job_name: This is only used to name the job in the batch system. The problem is that batch systems often only 
@@ -185,7 +184,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.35
+set script_ver = 1.0.36
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -625,6 +624,9 @@ else if ( `lowercase $processor_config` == 'custom' ) then
 ###   If your layout will be useful to other people, then please get it added to the standard 
 ###   configurations in the ACME repository.
 
+###   NOTE: It is shorter and more robust to implement the PE configuration changes using xmlchange
+###         rather than embedding the whole env_mach_pes.xml file
+ 
 echo 'run_acme: This processor configuration is for the A_B1850 compset on titan (2015-11-25)'
 cat <<EOF > env_mach_pes.xml
 <?xml version="1.0"?>
@@ -1318,6 +1320,7 @@ echo ''
 #                        Added finidat = '' to user_nl_clm, which allows A_B1850 to run.
 # 1.0.34   2016-01-12    Commented out the input_data_dir user configuration, so it defaults to the ACME settings.   (PJC)
 # 1.0.35   2016-01-13    Improved an error message.   (PJC)
+# 1.0.36   2016-01-21    Reordered options to better match workflow. (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
