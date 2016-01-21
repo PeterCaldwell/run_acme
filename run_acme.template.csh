@@ -17,60 +17,62 @@ endif
 ###===================================================================
 
 ### BASIC INFO ABOUT RUN (1)
-set run_name   = run_acme_example       # !!!!!! CHANGE BEFORE ARCHIVING to run_acme_example  !!!!!!!
-set job_name   = $run_name              # !!!!!! CHANGE BEFORE ARCHIVING to $run_name  !!!!!!!
-set compset    = A_B1850CN              # !!!!!! CHANGE BEFORE ARCHIVING to A_B1850  !!!!!!!
-set resolution = ne30_m120              # !!!!!! CHANGE BEFORE ARCHIVING to ne30_m120 !!!!!!!
-set machine    = titan                  # !!!!!! CHANGE BEFORE ARCHIVING to titan   !!!!!!!
-setenv project   cli112   #note project must be an *environment* variable on some systems.  # !!!!!! CHANGE BEFORE ARCHIVING to cli112   !!!!!!!
-
-### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
-set stop_units           = ndays        # !!!!!! CHANGE BEFORE ARCHIVING to ndays   !!!!!!!
-set stop_num             = 5            # !!!!!! CHANGE BEFORE ARCHIVING to 1       !!!!!!!
-set restart_units        = $stop_units  # !!!!!! CHANGE BEFORE ARCHIVING to $stop_units  !!!!!!!
-set restart_num          = $stop_num    # !!!!!! CHANGE BEFORE ARCHIVING to $stop_num    !!!!!!!
-set num_resubmits        = 0            # !!!!!! CHANGE BEFORE ARCHIVING to 0            !!!!!!!
-set do_short_term_archiving = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
-set do_long_term_archiving  = false     # !!!!!! CHANGE BEFORE ARCHIVING to false   !!!!!!!
-
-### SIMULATION OPTIONS (10)
-set atm_output_freq              = -24  # !!!!!! CHANGE BEFORE ARCHIVING to -24  !!!!!!!
-set records_per_atm_output_file  = 40   # !!!!!! CHANGE BEFORE ARCHIVING to 40   !!!!!!!
+set run_name       = run_acme_example       
+set job_name       = $run_name              
+set compset        = A_B1850CN              
+set resolution     = ne30_m120              
+set machine        = cori                  
+setenv project       acme         
 
 ### SOURCE CODE OPTIONS (2)
-set fetch_code = true                   # !!!!! CHANGE BEFORE ARCHIVING to true   !!!!!!!
-set acme_tag   = master                 # !!!!! CHANGE BEFORE ARCHIVING to master !!!!!!!
-set tag_name   = run_acme_tag_example   # !!!!! CHANGE BEFORE ARCHIVING to run_acme_tag_example !!!!!!!
+set fetch_code     = true                   
+set acme_tag       = master                 
+set tag_name       = run_acme_tag_example   
 
 ### BUILD OPTIONS (3)
-set debug_compile          = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
-set old_executable         = false      # !!!!! CHANGE BEFORE ARCHIVING to false !!!!!!!
-
-### SUBMIT OPTIONS (5)
-set submit_run             = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
-set debug_queue            = true       # !!!!! CHANGE BEFORE ARCHIVING to true !!!!!!!
+set debug_compile  = false      
+set old_executable = false      
 
 ### AUTOMATIC DELETION OPTIONS (4)
-set seconds_before_delete_source_dir = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
-set seconds_before_delete_case_dir   = 10   # !!!!!!! CHANGE BEFORE ARCHIVING to 10 !!!!!!
-set seconds_before_delete_bld_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
-set seconds_before_delete_run_dir    = -1   # !!!!!!! CHANGE BEFORE ARCHIVING to -1 !!!!!!
+set seconds_before_delete_source_dir = -1   
+set seconds_before_delete_case_dir   = 10   
+set seconds_before_delete_bld_dir    = -1   
+set seconds_before_delete_run_dir    = -1   
 
-### !!!! OPTIONS BELOW HERE NORMALLY SHOULDN'T BE CHANGED !!!!
-### ----------------------------------------------------------
+### SUBMIT OPTIONS (5)
+set submit_run       = true       
+set debug_queue      = true       
+
 ### PROCESSOR CONFIGURATION (6)
-set processor_config = custom   # To run ACME pre-alpha on Titan, set this to use the 'custom' configuration. # !!!!!!! CHANGE BEFORE ARCHIVING to M (or to 'custom' for pre-alpha version) !!!!!!
+set processor_config = S   
 
 ### STARTUP TYPE (7)
-set model_start_type = initial       # options: initial, continue, branch.  # !!!!!!! CHANGE BEFORE ARCHIVING to initial   !!!!!!
+set model_start_type = initial       
 
 ### DIRECTORIES (8)
-set code_root_dir  = ~/ACME_code/         # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!!
-set run_root_dir   = default              # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
-set short_term_archive_root_dir = default # Defaults known for many machines. If yours isn't known, please add it!  # !!!!!!! CHANGE BEFORE ARCHIVING to ~/ACME_code/    !!!!!! 
+set code_root_dir    = ~/ACME_code/         
+set run_root_dir     = default              
+set short_term_archive_root_dir = default   
 
-#EXPLANATION FOR VARIABLES ABOVE:
-#==================================
+### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
+set stop_units       = ndays        
+set stop_num         = 5            
+set restart_units    = $stop_units  
+set restart_num      = $stop_num    
+set num_resubmits    = 0            
+set do_short_term_archiving      = false     
+set do_long_term_archiving       = false     
+
+### SIMULATION OPTIONS (10)
+set atm_output_freq              = -24  
+set records_per_atm_output_file  = 40   
+
+#==============================
+#EXPLANATION FOR OPTIONS ABOVE:
+#==============================
+
+### BASIC INFO ABOUT RUN (1)
+
 #run_name: the run will be named: ${tag_name}.${compset}.${resolution}.${machine}.${run_name}.  run_name is to explain the 
 #    purpose of the run (e.g. run_name=ParallelPhysDyn) or just to ensure the run name is unique (e.g. run_name=test1).
 #job_name: This is only used to name the job in the batch system. The problem is that batch systems often only 
@@ -83,6 +85,9 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #machine: what machine you are going to run on. Must be a machine listed in $ACMEROOT/cime/machines-acme/config_machines.xml  
 #    (which can also be listed via `create_newcase -list machines`).
 #project: what bank to charge for your run time. May not be needed on some machines.
+#    NOTE: project must be an *environment* variable on some systems.
+
+### SOURCE CODE OPTIONS (2)
 
 #fetch_code: If True, downloads code from github. If False, code is assumed to exist already.
 #    NOTE: it is assumed that you have access to the ACME git repository.  To get access, see:
@@ -94,14 +99,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #    (which could be a very long hash!). Otherwise, this is a short name for the branch used. You can
 #    choose TAG_NAME to be whatever you want.
 
-#stop_units: The units for the length of run, eg nhours, ndays, nmonths, nyears.
-#stop_num: The simulation length for each batch submission, in units of $stop_units.
-#restart_units: The units for how often restart files are written, eg nhours, ndays, nmonths, nyears.
-#restart_num: How often restart files are written, in units of $restart_units.
-#num_resubmits: After a batch job finishes successfully, a new batch job will automatically be submitted to 
-#    continue the simulation.
-#do_short_term_archiving: If TRUE, then move simulation output to the archive directory in your scratch directory.
-#do_long_term_archiving : If TRUE, then move simulation output from the short_term_archive to the local mass storage system.
+### BUILD OPTIONS (3)
 
 #debug_compile: If TRUE, then compile with debug flags 
 #    Compiling in debug mode will stop the run at the actual location an error occurs, and provide more helpful output.
@@ -117,17 +115,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #          However the build system currently rebuilds a few files every time which takes several minutes.
 #          When this gets fixed the cost of deleting this feature will be minor.
 
-#submit_run:  If True, then submit the batch job to start the simulation.
-#debug_queue: If True, then use the debug queue, otherwise use the queue specified in the section on QUEUE OPTIONS. 
-
-#atm_output_freq (the namelist variable is nhtfrq) : The frequency with which the atmosphere writes its output.   
-#    0=monthly, +N=every N timesteps,  -N=every N hours 
-#    For more information:   http://www.cesm.ucar.edu/models/atm-cam/docs/usersguide/node45.html          
-#records_per_atm_output_file (the namelist variable is mfilt):  The number of time records in each netCDF output file 
-#    from the atmosphere model. If atm_output_freq=0, then there will only be one time record per file.
-#NOTE: If there will be more than one 'history tape' defined in the atm namelist, then 
-#    atm_output_freq and records_per_atm_output_file should be a comma-separated list of numbers 
-#    (specifying the option for each history tape).  
+### AUTOMATIC DELETION OPTIONS (4)
 
 #seconds_before_delete_source_dir : If seconds_before_delete_source_dir>=0 and fetch_code=true, this script automatically deletes 
 #    the old source code directory after waiting seconds_before_delete_source_dir seconds (to give you the opportunity to cancel 
@@ -138,9 +126,19 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #seconds_before_delete_bld_dir : As above, but force the code to recompile by removing the old compiled files.
 #seconds_before_delete_run_dir : As above, but the old run directory will be deleted.  This makes for a clean start.
 
+### SUBMIT OPTIONS (5)
+
+#submit_run:  If True, then submit the batch job to start the simulation.
+#debug_queue: If True, then use the debug queue, otherwise use the queue specified in the section on QUEUE OPTIONS. 
+
+### PROCESSOR CONFIGURATION (6)
+
 #processor_config: Indicates what processor configuration to use.
 #    1=single processor, S=small, M=medium, L=large, X1=very large, X2=very very large, CUSTOM=defined below.
 #    The actual configurations for S,M,L,X1,X2 are dependent on the machine.
+
+### STARTUP TYPE (7)
+
 #model_start_type:  Specify how this script should initialize the model:  initial, continue, branch. 
 #    These options are not necessarily related to the CESM run_type options.
 #    'initial' means the intial files will be copied into the run directory, 
@@ -150,7 +148,9 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #    NOTE: To continue an existing simulation, it may be easier to edit env_run and [case].run manually in the 
 #    case_scripts directory.  The biggest difference is that doing it with this script 
 #    may delete the previous case_scripts directory, and will provide a way to pass a simulation to someone else.
-#
+
+### DIRECTORIES (8)
+
 #code_root_dir: The directory that contains (or will contain) the source code and other code files. (formerly $CCSMROOT)
 #     If fetch_code=false, this is the location where the code already resides. 
 #     If fetch_code=true, this is where to put the code.
@@ -160,8 +160,31 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #     If run_root_dir is set to 'default' then this script will make an intelligent guess based on the machine.
 #short_term_archive_root_dir:  The directory to put short-term archived data in (if do_short_term_archiving=true). If set to 
 #     'default', this script will make an intelligent guess based on the machine.
-#
-# Notes: 
+
+### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
+
+#stop_units: The units for the length of run, eg nhours, ndays, nmonths, nyears.
+#stop_num: The simulation length for each batch submission, in units of $stop_units.
+#restart_units: The units for how often restart files are written, eg nhours, ndays, nmonths, nyears.
+#restart_num: How often restart files are written, in units of $restart_units.
+#num_resubmits: After a batch job finishes successfully, a new batch job will automatically be submitted to 
+#    continue the simulation.
+#do_short_term_archiving: If TRUE, then move simulation output to the archive directory in your scratch directory.
+#do_long_term_archiving : If TRUE, then move simulation output from the short_term_archive to the local mass storage system.
+
+### SIMULATION OPTIONS (10)
+
+#atm_output_freq (the namelist variable is nhtfrq) : The frequency with which the atmosphere writes its output.   
+#    0=monthly, +N=every N timesteps,  -N=every N hours 
+#    For more information:   http://www.cesm.ucar.edu/models/atm-cam/docs/usersguide/node45.html          
+#records_per_atm_output_file (the namelist variable is mfilt):  The number of time records in each netCDF output file 
+#    from the atmosphere model. If atm_output_freq=0, then there will only be one time record per file.
+#NOTE: If there will be more than one 'history tape' defined in the atm namelist, then 
+#    atm_output_freq and records_per_atm_output_file should be a comma-separated list of numbers 
+#    (specifying the option for each history tape).  
+
+### GENERAL NOTES: 
+
 # 1. capitalization doesn't matter on most of the variables above because we lowercase variables before using them. 
 # 2. most of the code below does things you probably never want to change. However, users will often make settings
 #    in the "USER_NL" and "RUN CONFIGURATION OPTIONS" sections below.
@@ -185,7 +208,7 @@ set short_term_archive_root_dir = default # Defaults known for many machines. If
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.0.35
+set script_ver = 1.2.1
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -625,6 +648,9 @@ else if ( `lowercase $processor_config` == 'custom' ) then
 ###   If your layout will be useful to other people, then please get it added to the standard 
 ###   configurations in the ACME repository.
 
+###   NOTE: It is shorter and more robust to implement the PE configuration changes using xmlchange
+###         rather than embedding the whole env_mach_pes.xml file
+ 
 echo 'run_acme: This processor configuration is for the A_B1850 compset on titan (2015-11-25)'
 cat <<EOF > env_mach_pes.xml
 <?xml version="1.0"?>
@@ -1224,6 +1250,9 @@ echo ''
 #                        Added finidat = '' to user_nl_clm, which allows A_B1850 to run.
 # 1.0.34   2016-01-12    Commented out the input_data_dir user configuration, so it defaults to the ACME settings.   (PJC)
 # 1.0.35   2016-01-13    Improved an error message.   (PJC)
+# 1.0.36   2016-01-21    Reordered options to better match workflow. (PJC)
+# 1.2.0    2016-01-21    Set options to settings for release. (PJC)
+# 1.2.1    2016-01-21    Reordered and refined comments to match new ordering of options. (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
