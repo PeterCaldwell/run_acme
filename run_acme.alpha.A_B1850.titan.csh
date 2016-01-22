@@ -825,6 +825,7 @@ set input_data_dir = `./xmlquery DIN_LOC_ROOT -value`
 # alternate location here
 if ( $machine == 'titan' ) then
   setenv TMPDIR ${PROJWORK}/${project}/${USER}/tmp
+  mkdir -p $TMPDIR
 endif
 
 #============================================
