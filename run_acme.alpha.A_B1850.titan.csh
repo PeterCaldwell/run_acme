@@ -793,6 +793,17 @@ endif
 set input_data_dir = `./xmlquery DIN_LOC_ROOT -value`
 
 #============================================
+# SET ALTERNATE TMP DIRECTORY FOR COMPILATION
+#============================================
+
+# Note: on titan, compilation will occasionally fail because there is
+# not enough space in default /tmp location used by compiler. Specify
+# alternate location here
+if ( $machine == 'titan' ) then
+  setenv TMPDIR ${PROJWORK}/${project}/${USER}/tmp
+endif
+
+#============================================
 # COMPONENT CONFIGURATION OPTIONS
 #============================================
 
