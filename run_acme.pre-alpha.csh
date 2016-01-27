@@ -208,7 +208,7 @@ set records_per_atm_output_file  = 40
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.2.2
+set script_ver = 1.2.3
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -317,13 +317,13 @@ if ( `lowercase $fetch_code` == true ) then
     echo 'Once the patches have been made, rerun this script with fetch_code=false'
     exit 22
   else if ( $machine == 'cori' && -x ~/xxdiff/xxdiff ) then
-    echo ''
-    echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
-    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
-    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
-    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
-    echo 'Once the patches have been made, rerun this script with fetch_code=false'
-    exit 23
+#    echo ''
+##   echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
+##   echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
+#    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
+#    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
+#    echo 'Once the patches have been made, rerun this script with fetch_code=false'
+#    exit 23
   endif
 
 endif
@@ -1348,7 +1348,8 @@ echo ''
 # 1.2.0    2016-01-21    Set options to settings for release. (PJC)
 # 1.2.1    2016-01-21    Reordered and refined comments to match new ordering of options. (PJC)
 # 1.2.2    2016-01-21    The batch submission problem on Cori has been repaired on master (#598), 
-#                        so undid the work around in this script. (PJC)
+#                        so I have undone the workaround in this script. (PJC)
+# 1.2.3    2016-01-26    Commented out some of the workarounds for ACME bugs that are no longer needed.  (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
