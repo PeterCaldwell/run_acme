@@ -22,46 +22,46 @@ set job_name       = $run_name
 set compset        = A_B1850
 set resolution     = ne30_oEC
 set machine        = titan
-setenv project       cli112           
+setenv project       cli112
 
 ### SOURCE CODE OPTIONS (2)
-set fetch_code     = true                   
+set fetch_code     = true
 set acme_tag       = master
-set tag_name       = master_detached        
+set tag_name       = master_detached
 
 ### BUILD OPTIONS (3)
-set debug_compile  = false      
-set old_executable = false      
+set debug_compile  = false
+set old_executable = false
 
 ### AUTOMATIC DELETION OPTIONS (4)
-set seconds_before_delete_source_dir = -1   
-set seconds_before_delete_case_dir   = 10   
-set seconds_before_delete_bld_dir    = -1   
-set seconds_before_delete_run_dir    = -1   
+set seconds_before_delete_source_dir = -1
+set seconds_before_delete_case_dir   = 10
+set seconds_before_delete_bld_dir    = -1
+set seconds_before_delete_run_dir    = -1
 
 ### SUBMIT OPTIONS (5)
-set submit_run       = true       
-set debug_queue      = true       
+set submit_run       = true
+set debug_queue      = true
 
 ### PROCESSOR CONFIGURATION (6)
-set processor_config = custom   
+set processor_config = custom
 
 ### STARTUP TYPE (7)
-set model_start_type = initial       
+set model_start_type = initial
 
 ### DIRECTORIES (8)
-set code_root_dir    = ~/ACME_code/         
-set run_root_dir     = default              
-set short_term_archive_root_dir = default   
+set code_root_dir    = ~/ACME_code/
+set run_root_dir     = default
+set short_term_archive_root_dir = default
 
 ### LENGTH OF SIMULATION, RESTARTS, AND ARCHIVING (9)
-set stop_units       = ndays        
-set stop_num         = 5            
-set restart_units    = $stop_units  
-set restart_num      = $stop_num    
-set num_resubmits    = 0            
-set do_short_term_archiving      = false     
-set do_long_term_archiving       = false     
+set stop_units       = ndays
+set stop_num         = 5
+set restart_units    = $stop_units
+set restart_num      = $stop_num
+set num_resubmits    = 0
+set do_short_term_archiving      = false
+set do_long_term_archiving       = false
 
 ### SIMULATION OPTIONS (10)
 set atm_output_freq              =  0 
@@ -208,7 +208,7 @@ set records_per_atm_output_file  =  1
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.2.1
+set script_ver = 1.2.3
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -317,13 +317,13 @@ if ( `lowercase $fetch_code` == true ) then
     echo 'Once the patches have been made, rerun this script with fetch_code=false'
     exit 22
   else if ( $machine == 'cori' && -x ~/xxdiff/xxdiff ) then
-    echo ''
-    echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
-    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
-    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
-    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
-    echo 'Once the patches have been made, rerun this script with fetch_code=false'
-    exit 23
+#    echo ''
+##   echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
+##   echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
+#    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
+#    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
+#    echo 'Once the patches have been made, rerun this script with fetch_code=false'
+#    exit 23
   endif
 
 endif
@@ -1015,8 +1015,8 @@ if ( `lowercase $debug_queue` == 'true' ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
   else if ( $machine == cori ) then
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=debug" ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=00:30:00"   ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--partition"/c"#SBATCH  --partition=debug" ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--time"/c"#SBATCH  --time=00:30:00"        ${case_name}.run
   else if ( $machine == titan || $machine == eos  ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
@@ -1032,8 +1032,8 @@ else #if NOT to be run in debug_queue
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q regular"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
   else if ( $machine == cori ) then
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --partition=regular" ${case_name}.run
-    sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --time=02:00:00"     ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--partition"/c"#SBATCH  --partition=regular" ${case_name}.run
+    sed -i /"#SBATCH${cime_space}--time"/c"#SBATCH  --time=02:00:00"          ${case_name}.run
   else if ( $machine == titan || $machine == eos  ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q batch"                          ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
@@ -1361,6 +1361,9 @@ echo ''
 # 1.0.36   2016-01-21    Reordered options to better match workflow. (PJC)
 # 1.2.0    2016-01-21    Set options to settings for release. (PJC)
 # 1.2.1    2016-01-21    Reordered and refined comments to match new ordering of options. (PJC)
+# 1.2.2    2016-01-21    The batch submission problem on Cori has been repaired on master (#598), 
+#                        so I have undone the workaround in this script. (PJC)
+# 1.2.3    2016-01-26    Commented out some of the workarounds for ACME bugs that are no longer needed.  (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
