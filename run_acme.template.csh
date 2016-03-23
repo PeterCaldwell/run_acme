@@ -21,8 +21,8 @@ set run_name       = run_acme_example
 set job_name       = $run_name
 set compset        = FC5AV1C-01
 set resolution     = ne30_g16
-set machine        = titan
-setenv project       cli112
+set machine        = cori
+setenv project       acme
 
 ### SOURCE CODE OPTIONS (2)
 set fetch_code     = true
@@ -208,7 +208,7 @@ set records_per_atm_output_file  = 40
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.4.0
+set script_ver = 1.4.1
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -657,6 +657,8 @@ else if ( `lowercase $processor_config` == 'custom' ) then
  
 cat <<EOF > env_mach_pes.xml
 <?xml version="1.0"?>
+
+<!-- This env_mach_pes.xml file is designed for high speed on Titan  -->
 
 <config_definition>
 
@@ -1174,6 +1176,10 @@ endif
 
 #NOTE:  This section is for making specific changes to the run options (ie env_run.xml).
 
+#if ( $machine == cori ) then      ### fix pnetcdf problem on Cori. (github #593)
+#  ./xmlchange -file env_run.xml -id PIO_TYPENAME  -val "netcdf"
+#endif
+
 #=================================================
 # SUBMIT THE SIMULATION TO THE RUN QUEUE
 #=================================================
@@ -1272,6 +1278,7 @@ echo ''
 #                        so I have undone the workaround in this script. (PJC)
 # 1.2.3    2016-01-26    Commented out some of the workarounds for ACME bugs that are no longer needed.  (PJC)
 # 1.4.0    2016-03-23    A number of modifications to handle changes in machines and ACME. [version archived to ACME] (PJC)
+# 1.4.1    2016-03-23    Modified to defaults for Cori (NERSC). (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
