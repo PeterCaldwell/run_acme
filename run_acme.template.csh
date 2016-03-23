@@ -19,10 +19,10 @@ endif
 ### BASIC INFO ABOUT RUN (1)
 set run_name       = run_acme_example
 set job_name       = $run_name
-set compset        = A_B1850CN
-set resolution     = ne30_m120
-set machine        = cori
-setenv project       acme
+set compset        = FC5AV1C-01
+set resolution     = ne30_g16
+set machine        = titan
+setenv project       cli112
 
 ### SOURCE CODE OPTIONS (2)
 set fetch_code     = true
@@ -208,7 +208,7 @@ set records_per_atm_output_file  = 40
 #===========================================
 # DOCUMENT WHICH VERSION OF THIS SCRIPT IS BEING USED:
 #===========================================
-set script_ver = 1.2.3
+set script_ver = 1.4.0
 
 echo ''
 echo 'run_acme: ++++++++ run_acme starting ('`date`'), version '$script_ver' ++++++++'
@@ -310,21 +310,21 @@ if ( `lowercase $fetch_code` == true ) then
     git checkout ${acme_tag}       
   endif
 
-  if ( $machine == 'titan' && -x ~/xxdiff/xxdiff ) then      ## For PJC.  Need to generalize.
-    echo ''
-    echo 'Run xxdiff to fix CESMSCRATCHROOT in config_machines.xml on Titan :'
-    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_machines.xml  ~/ACME_code/bug_fixes/"
-    echo 'Once the patches have been made, rerun this script with fetch_code=false'
-    exit 22
-  else if ( $machine == 'cori' && -x ~/xxdiff/xxdiff ) then
+#  if ( $machine == 'titan' && -x ~/xxdiff/xxdiff ) then      ## For PJC.  Need to generalize.
 #    echo ''
-##   echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
-##   echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
-#    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
-#    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
+#    echo 'Run xxdiff to fix CESMSCRATCHROOT in config_machines.xml on Titan :'
+#    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_machines.xml  ~/ACME_code/bug_fixes/"
 #    echo 'Once the patches have been made, rerun this script with fetch_code=false'
-#    exit 23
-  endif
+#    exit 22
+#  else if ( $machine == 'cori' && -x ~/xxdiff/xxdiff ) then
+##    echo ''
+###   echo 'Run xxdiff to fix batch options in config_batch.xml on Cori :'
+###   echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_batch.xml  ~/ACME_code/bug_fixes/"
+##    echo 'Run xxdiff to change PIO_TYPENAME to netcdf on Cori :'
+##    echo "xxdiff ${code_root_dir}/${tag_name}/cime/machines-acme/config_pes.xml  ~/ACME_code/bug_fixes/"
+##    echo 'Once the patches have been made, rerun this script with fetch_code=false'
+##    exit 23
+#  endif
 
 endif
 
@@ -637,6 +637,10 @@ if ( `lowercase $processor_config` == '1' ) then
     ./xmlchange -file env_mach_pes.xml -id $nthrds_name  -val $nthrds
   end
 
+  foreach rootpe_name ( ROOTPE_ATM  ROOTPE_LND  ROOTPE_ICE  ROOTPE_OCN  ROOTPE_CPL  ROOTPE_GLC  ROOTPE_ROF  ROOTPE_WAV )
+    ./xmlchange -file env_mach_pes.xml -id $rootpe_name  -val 0
+  end
+
   foreach layout_name ( NINST_ATM_LAYOUT NINST_LND_LAYOUT NINST_ICE_LAYOUT NINST_OCN_LAYOUT NINST_GLC_LAYOUT NINST_ROF_LAYOUT NINST_WAV_LAYOUT )
     ./xmlchange -file env_mach_pes.xml -id $layout_name  -val $sequential_or_concurrent
   end
@@ -651,7 +655,6 @@ else if ( `lowercase $processor_config` == 'custom' ) then
 ###   NOTE: It is shorter and more robust to implement the PE configuration changes using xmlchange
 ###         rather than embedding the whole env_mach_pes.xml file
  
-echo 'run_acme: This processor configuration is for the A_B1850 compset on titan (2015-11-25)'
 cat <<EOF > env_mach_pes.xml
 <?xml version="1.0"?>
 
@@ -711,49 +714,49 @@ cat <<EOF > env_mach_pes.xml
 <!--                                                                            -->
 <!-- ========================================================================== -->
 
-<entry id="NTASKS_ATM"   value="675"  />    
-<entry id="NTHRDS_ATM"   value="2"  />    
+<entry id="NTASKS_ATM"   value="2700"  />    
+<entry id="NTHRDS_ATM"   value="4"  />    
 <entry id="ROOTPE_ATM"   value="0"  />    
 <entry id="NINST_ATM"   value="1"  />    
 <entry id="NINST_ATM_LAYOUT"   value="concurrent"  />    
 
-<entry id="NTASKS_LND"   value="164"  />    
-<entry id="NTHRDS_LND"   value="2"  />    
-<entry id="ROOTPE_LND"   value="512"  />    
+<entry id="NTASKS_LND"   value="512"  />    
+<entry id="NTHRDS_LND"   value="4"  />    
+<entry id="ROOTPE_LND"   value="1536"  />    
 <entry id="NINST_LND"   value="1"  />    
 <entry id="NINST_LND_LAYOUT"   value="concurrent"  />    
 
-<entry id="NTASKS_ICE"   value="512"  />    
-<entry id="NTHRDS_ICE"   value="2"  />    
-<entry id="ROOTPE_ICE"   value="0"  />    
+<entry id="NTASKS_ICE"   value="256"  />    
+<entry id="NTHRDS_ICE"   value="1"  />    
+<entry id="ROOTPE_ICE"   value="1024"  />    
 <entry id="NINST_ICE"   value="1"  />    
 <entry id="NINST_ICE_LAYOUT"   value="concurrent"  />    
 
-<entry id="NTASKS_OCN"   value="128"  />    
-<entry id="NTHRDS_OCN"   value="2"  />    
-<entry id="ROOTPE_OCN"   value="676"  />    
+<entry id="NTASKS_OCN"   value="256"  />    
+<entry id="NTHRDS_OCN"   value="1"  />    
+<entry id="ROOTPE_OCN"   value="1280"  />    
 <entry id="NINST_OCN"   value="1"  />    
 <entry id="NINST_OCN_LAYOUT"   value="concurrent"  />    
 
-<entry id="NTASKS_CPL"   value="512"  />    
-<entry id="NTHRDS_CPL"   value="2"  />    
+<entry id="NTASKS_CPL"   value="1024"  />    
+<entry id="NTHRDS_CPL"   value="4"  />    
 <entry id="ROOTPE_CPL"   value="0"  />    
 
 <entry id="NTASKS_GLC"   value="1"  />    
-<entry id="NTHRDS_GLC"   value="2"  />    
-<entry id="ROOTPE_GLC"   value="512"  />    
+<entry id="NTHRDS_GLC"   value="1"  />    
+<entry id="ROOTPE_GLC"   value="1536"  />    
 <entry id="NINST_GLC"   value="1"  />    
 <entry id="NINST_GLC_LAYOUT"   value="concurrent"  />    
 
-<entry id="NTASKS_ROF"   value="164"  />    
-<entry id="NTHRDS_ROF"   value="2"  />    
-<entry id="ROOTPE_ROF"   value="512"  />    
+<entry id="NTASKS_ROF"   value="512"  />    
+<entry id="NTHRDS_ROF"   value="1"  />    
+<entry id="ROOTPE_ROF"   value="1536"  />    
 <entry id="NINST_ROF"   value="1"  />    
 <entry id="NINST_ROF_LAYOUT"   value="concurrent"  />    
 
-<entry id="NTASKS_WAV"   value="512"  />    
-<entry id="NTHRDS_WAV"   value="2"  />    
-<entry id="ROOTPE_WAV"   value="0"  />    
+<entry id="NTASKS_WAV"   value="256"  />    
+<entry id="NTHRDS_WAV"   value="4"  />    
+<entry id="ROOTPE_WAV"   value="1024"  />    
 <entry id="NINST_WAV"   value="1"  />    
 <entry id="NINST_WAV_LAYOUT"   value="concurrent"  />    
 
@@ -766,14 +769,14 @@ cat <<EOF > env_mach_pes.xml
 <entry id="PSTRID_ROF"   value="1"  />    
 <entry id="PSTRID_WAV"   value="1"  />    
 
-<entry id="TOTALPES"   value="1608"  />    
+<entry id="TOTALPES"   value="10800"  />    
 <entry id="PES_LEVEL"   value="0"  />    
 <entry id="MAX_TASKS_PER_NODE"   value="16"  />    
 <entry id="PES_PER_NODE"   value="\$MAX_TASKS_PER_NODE"  />    
 <entry id="COST_PES"   value="0"  />    
-<entry id="CCSM_PCOST"   value="-3"  />    
+<entry id="CCSM_PCOST"   value="-5"  />    
 <entry id="CCSM_TCOST"   value="0"  />    
-<entry id="CCSM_ESTCOST"   value="1"  />    
+<entry id="CCSM_ESTCOST"   value="4"  />    
 
 </config_definition>
 EOF
@@ -973,10 +976,10 @@ if ( `lowercase $debug_queue` == 'true' ) then
   if ( $machine == cab ) then
     sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pdebug"                     ${case_name}.run
     sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=00:30:00" ${case_name}.run
-  else if ( $machine == hopper || $machine == edison ) then
+  else if ( $machine == hopper ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q debug"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=00:30:00"   ${case_name}.run
-  else if ( $machine == cori ) then
+  else if ( $machine == cori || $machine == edison ) then
     sed -i /"#SBATCH${cime_space}--partition"/c"#SBATCH  --partition=debug" ${case_name}.run
     sed -i /"#SBATCH${cime_space}--time"/c"#SBATCH  --time=00:30:00"        ${case_name}.run
   else if ( $machine == titan || $machine == eos  ) then
@@ -990,10 +993,10 @@ else #if NOT to be run in debug_queue
   if ( $machine == cab ) then
     sed -i /"#MSUB${cime_space}-q"/c"#MSUB  -q pbatch"                       ${case_name}.run
     sed -i /"#MSUB${cime_space}-l walltime"/c"#MSUB  -l walltime=02:00:00"   ${case_name}.run
-  else if ( $machine == hopper || $machine == edison ) then
+  else if ( $machine == hopper ) then
     sed -i /"#PBS${cime_space}-q"/c"#PBS  -q regular"                        ${case_name}.run
     sed -i /"#PBS${cime_space}-l walltime"/c"#PBS  -l walltime=02:00:00"     ${case_name}.run
-  else if ( $machine == cori ) then
+  else if ( $machine == cori || $machine == edison ) then
     sed -i /"#SBATCH${cime_space}--partition"/c"#SBATCH  --partition=regular" ${case_name}.run
     sed -i /"#SBATCH${cime_space}--time"/c"#SBATCH  --time=02:00:00"          ${case_name}.run
   else if ( $machine == titan || $machine == eos  ) then
@@ -1016,17 +1019,17 @@ endif
 
 mkdir -p batch_output      ### Make directory that stdout and stderr will go into.
  
-if ( $machine == hopper || $machine == edison ) then
+if ( $machine == hopper ) then
     sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ${job_name}"                                ${case_name}.run
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                             $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ST+${job_name}"                             $shortterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                             $longterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N LT+${job_name}"                             $longterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
-else if ( $machine == cori ) then
+else if ( $machine == cori || $machine == edison ) then
     sed -i /"#SBATCH${cime_space}--job-name"/c"#SBATCH  --job-name=${job_name}"                 ${case_name}.run
     sed -i /"#SBATCH${cime_space}--job-name"/a"#SBATCH  --account=${project}"                   ${case_name}.run
     sed -i /"#SBATCH${cime_space}--output"/c"#SBATCH  --output=batch_output/"${case_name}'.o%j' ${case_name}.run
@@ -1043,9 +1046,9 @@ else if ( $machine == titan || $machine == eos ) then
     sed -i /"#PBS${cime_space}-A"/c"#PBS  -A ${project}"                                 ${case_name}.run
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' ${case_name}.run
     
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N st=${job_name}"                             $shortterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N ST+${job_name}"                             $shortterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $shortterm_archive_script
-    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N lt=${job_name}"                             $longterm_archive_script
+    sed -i /"#PBS${cime_space}-N"/c"#PBS  -N LT+${job_name}"                             $longterm_archive_script
     sed -i /"#PBS${cime_space}-j oe"/a'#PBS  -o batch_output/${PBS_JOBNAME}.o${PBS_JOBID}' $longterm_archive_script
 
 else
@@ -1125,25 +1128,37 @@ else if ( $model_start_type == 'branch' ) then
   ### Branch runs are the same as restarts, except that the history output can be changed 
   ### (eg to add new variables or change output frequency). 
 
-#  set restart_files_dir = $PROJWORK/cli107/sulfur_DOE_restarts/2deg_1850_0011-01-01-00000
-#  cp -fpu $restart_files_dir/* ${case_run_dir}
-    
-  set rpointer_filename = "${case_run_dir}/rpointer.drv"
+  ### Branch runs are often used when trying to handle a complicated situation. 
+  ### Hence, it is likely that the user will need to customize this section.
+
+  set restart_files_dir = ${case_run_dir}       # User expected to manually put restart files in run directory (default)
+# set restart_files_dir = /lustre/atlas/proj-shared/cli112/pjcs/archive/L72-compsets-set1.FC5AV1C.ne30_g16.titan.FC5_complete/rest/0002-10-19-00000/
+
+  if ( ${restart_files_dir} != ${case_run_dir} ) then
+    cp -fpu $restart_files_dir/* ${case_run_dir}            # Copy restart files to run directory.
+  endif  
+  
+  set rpointer_filename = "${restart_files_dir}/rpointer.drv"
   if ( ! -f $rpointer_filename ) then
     echo "run_acme: ERROR rpointer file doesn't exist. It is needed to extract RUN_REFDATE."
     echo "              This may be because you should set model_start_type to 'initial' or 'continue' rather than 'branch'."
     exit 370
   endif 
-  set restart_filedate = `cat $rpointer_filename`
-  set restart_filedate = ${restart_filedate:r:e:s/-00000//}      # Extract out the date (yyyy-mm-dd).
-  echo 'run_acme: $restart_filedate = '$restart_filedate
+  set restart_coupler_filename = `cat $rpointer_filename`
+  set restart_case_name = ${restart_coupler_filename:r:r:r:r}         # Extract out the case name for the restart files.
+  set restart_filedate = ${restart_coupler_filename:r:e:s/-00000//}   # Extract out the date (yyyy-mm-dd).
+  echo 'run_acme: $restart_case_name = '$restart_case_name
+  echo 'run_acme: $restart_filedate  = '$restart_filedate
   
-  set restart_case_name = 'CASE_NAME_FOR_RUN_THAT_GENERATED_THE_RESTART_FILES'
+### Override automatic information if needed.
+#  set restart_case_name = 'CASE_NAME_FOR_RUN_THAT_GENERATED_THE_RESTART_FILES'    
+#  set restart_filedate = 'Model date of form yyyy-mm-dd'
+
   ./xmlchange -file env_run.xml -id RUN_TYPE -val "branch"
   ./xmlchange -file env_run.xml -id RUN_REFCASE -val $restart_case_name   
   ./xmlchange -file env_run.xml -id RUN_REFDATE -val $restart_filedate    # Model date of restart file
   ./xmlchange -file env_run.xml -id CONTINUE_RUN -val "FALSE"
-  ./xmlchange -file env_run.xml -id BRNCH_RETAIN_CASENAME -val "FALSE"  ## Only TRUE if you really want to continue the run with the same name!!
+  ./xmlchange -file env_run.xml -id BRNCH_RETAIN_CASENAME -val "FALSE"  ## Only TRUE if you want to continue the run with the same name (risky)!!
 
 else
 
@@ -1256,6 +1271,7 @@ echo ''
 # 1.2.2    2016-01-21    The batch submission problem on Cori has been repaired on master (#598), 
 #                        so I have undone the workaround in this script. (PJC)
 # 1.2.3    2016-01-26    Commented out some of the workarounds for ACME bugs that are no longer needed.  (PJC)
+# 1.4.0    2016-03-23    A number of modifications to handle changes in machines and ACME. [version archived to ACME] (PJC)
 
 # NOTE:  PJC = Philip Cameron-Smith,  PMC = Peter Caldwell, CG = Chris Golaz
 
@@ -1268,6 +1284,7 @@ echo ''
 # +) Add a 'default' option, for which REST_OPTION='$STOP_OPTION' and REST_N='$STOP_N'.
 #    This is important if the user subsequently edits STOP_OPTION or STOP_N.      (PJC)
 # +) Add defaults for Edison. (PJC)
+# +) triggering on $acme_tag = master_detached doesn't make sense.  Fix logic. (PJC)
              
 ###Example sed commands
 #============================
