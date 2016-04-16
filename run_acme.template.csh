@@ -114,6 +114,7 @@ set records_per_atm_output_file  = 40
 #    NOTE: old_executable=true is a risk to provenance, so this feature may be removed in the future.
 #          However the build system currently rebuilds a few files every time which takes several minutes.
 #          When this gets fixed the cost of deleting this feature will be minor.
+#    NOTE: Skipping the build will also skip the check for missing inputdata files.
 
 ### AUTOMATIC DELETION OPTIONS (4)
 
